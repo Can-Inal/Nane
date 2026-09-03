@@ -1,9 +1,6 @@
 # Nane
 
 [![Nane CI](https://github.com/Can-Inal/Nane/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/Can-Inal/Nane/actions/workflows/build.yml)
-[![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://Can-Inal.github.io/Nane/)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![C++](https://img.shields.io/badge/C%2B%2B-23-blue.svg)](https://en.cppreference.com/)
 
 Nane is a C++23 scientific computing library focused on numerical methods,
 linear algebra, ordinary differential equations, computational grids, and

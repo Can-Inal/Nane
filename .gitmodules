@@ -1,5 +1,5 @@
-[submodule "lib/vendor/eigen"]
-	path = lib/vendor/eigen
+[submodule "nane/vendor/eigen"]
+	path = nane/vendor/eigen
 	url = https://gitlab.com/libeigen/eigen.git
 [submodule "docs/doxygen-awesome-css"]
 	path = docs/doxygen-awesome-css

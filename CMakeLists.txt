@@ -57,6 +57,6 @@ endif()
 # Subdirectories
 # ------------------------------------------------------------------------------
 
-add_subdirectory(lib)
+add_subdirectory(nane)
 add_subdirectory(viz)
 add_subdirectory(studio)
