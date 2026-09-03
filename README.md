@@ -23,20 +23,6 @@ small, composable interfaces for numerical algorithms.
 
 > **Nane is currently under active development.**
 
-## Features
-
-- Uniform computational grids
-- Eigen-based linear algebra
-- Scalar and vector-valued ODE solvers
-- Generic explicit and implicit Runge-Kutta methods
-- Explicit Euler
-- Implicit Euler
-- Heun's method
-- Fixed-point iteration
-- Optional OpenMP support
-- Cross-platform builds on Linux, macOS, and Windows
-- Catch2-based test suite
-
 ## Example
 
 ```cpp
