@@ -1,7 +1,7 @@
 /**
 @mainpage Nane
 
-**A modern C++23 scientific computing library.**
+<strong>A modern C++23 scientific computing library.</strong>
 
 Nane provides small and composable tools for numerical computing while
 using Eigen directly for vectors and matrices.
