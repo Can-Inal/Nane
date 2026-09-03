@@ -67,6 +67,12 @@ GitHub Pages.
 
 [Open the Nane documentation](https://can-inal.github.io/Nane/)
 
+## Contributing
+
+Contributions, bug reports, feature suggestions, and discussions are welcome.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
+
 ## License
 
 Nane is available under the [MIT License](LICENSE).
