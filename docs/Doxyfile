@@ -13,6 +13,7 @@ OUTPUT_DIRECTORY       = build/docs
 
 INPUT                  = docs/mainpage.dox \
                          docs/groups.dox \
+			 docs/namespaces.dox \
                          include \
                          src
 
@@ -37,6 +38,13 @@ JAVADOC_AUTOBRIEF      = YES
 MULTILINE_CPP_IS_BRIEF = YES
 
 MARKDOWN_SUPPORT       = YES
+
+# -----------------------------------------------------------------------------
+# Search
+# -----------------------------------------------------------------------------
+
+SEARCHENGINE            = YES
+SERVER_BASED_SEARCH     = NO
 
 # -----------------------------------------------------------------------------
 # Source browser

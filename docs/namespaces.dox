@@ -1,0 +1,7 @@
+/**
+ * @namespace nane
+ * @brief Main namespace for the Nane scientific computing library.
+ *
+ * Contains Nane's numerical algorithms, computational grid types,
+ * and general library utilities.
+ */
