@@ -1,0 +1,41 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+
+  workflow_dispatch:
+
+jobs:
+  linux:
+    name: Linux
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            cmake \
+            ninja-build \
+            libvtk9-dev
+
+      - name: Configure
+        run: |
+          cmake \
+            -S . \
+            -B build \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --parallel
