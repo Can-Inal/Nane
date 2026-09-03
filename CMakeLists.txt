@@ -119,19 +119,19 @@ target_compile_features(
 # Eigen
 # ------------------------------------------------------------------------------
 
-set(CMAKE_WARN_DEPRECATED OFF CACHE BOOL "" FORCE)
+add_library(nane_eigen INTERFACE)
 
-add_subdirectory(
-    vendor/eigen
-    EXCLUDE_FROM_ALL
+target_include_directories(
+    nane_eigen
+    SYSTEM
+    INTERFACE
+        "${CMAKE_CURRENT_SOURCE_DIR}/vendor/eigen"
 )
-
-set(CMAKE_WARN_DEPRECATED ON CACHE BOOL "" FORCE)
 
 target_link_libraries(
     nane
     ${NANE_USAGE_SCOPE}
-        Eigen3::Eigen
+        nane_eigen
 )
 
 # ------------------------------------------------------------------------------
