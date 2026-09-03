@@ -9,7 +9,7 @@ int main()
         {0.0, 10.0, 1001},
     });
 
-    const nane::symbol x{1};
+    const auto [t, x] = nane::symbols<2>();
 
     const auto derivative = nane::system(x[1], -nane::sin(x[0]) - 0.1 * x[1]);
 

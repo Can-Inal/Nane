@@ -73,15 +73,15 @@ TEST_CASE("Heun accepts a symbolic scalar derivative", "[ode][heun][symbolic]")
         {0.0, 1.0, 101},
     });
 
-    const nane::symbol x{1};
+    const auto [t, x] = nane::symbols<2>();
 
-    const auto derivative = nane::function(-x);
+    const auto derivative = nane::function(-t * t * x);
 
     const auto solution = nane::heun(derivative, 1.0, time_grid);
 
     REQUIRE(solution[0] == Catch::Approx(1.0).margin(1e-12));
 
-    REQUIRE(solution[solution.size() - 1] == Catch::Approx(std::exp(-1.0)).margin(1e-4));
+    REQUIRE(solution[solution.size() - 1] == Catch::Approx(std::exp(-1.0 / 3.0)).margin(1e-4));
 }
 
 TEST_CASE("Heun accepts a symbolic coupled system", "[ode][heun][vector][symbolic]")
@@ -90,7 +90,7 @@ TEST_CASE("Heun accepts a symbolic coupled system", "[ode][heun][vector][symboli
         {0.0, 1.0, 101},
     });
 
-    const nane::symbol x{1};
+    const auto [t, x] = nane::symbols<2>();
 
     const auto derivative = nane::system(x[1], -x[0]);
 

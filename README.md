@@ -38,8 +38,7 @@ int main()
         {0.0, 2.0, 101},
     });
 
-    const nane::symbol t{0};
-    const nane::symbol x{1};
+    const auto [t, x] = nane::symbols<2>();
 
     const auto derivative = nane::function(-t * t * x);
 
@@ -49,15 +48,25 @@ int main()
 }
 ```
 
-Symbolic expressions can also be used for coupled vector-valued systems:
+Symbolic expressions can also describe coupled vector-valued systems:
 
 ```cpp
-const nane::symbol x{1};
+const auto [t, x] = nane::symbols<2>();
 
-const auto derivative = nane::system(x[1], -nane::sin(x[0]) - 0.1 * x[1]);
+const auto derivative = nane::system(
+    x[1],
+    -nane::sin(x[0]) - 0.1 * x[1]
+);
 ```
 
-More examples are available in the [`examples`](examples/) directory.
+## Examples
+
+Additional examples are available in the [`examples`](examples/) directory.
+
+```bash
+cmake -S . -B build -G Ninja -DNANE_BUILD_EXAMPLES=ON
+cmake --build build --parallel
+```
 
 ## Documentation
 

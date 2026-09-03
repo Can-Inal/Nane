@@ -16,18 +16,17 @@ namespace nane
      * A symbol refers to one of the arguments supplied when evaluating a
      * symbolic function. Argument indices are zero-based.
      *
-     * For example,
+     * Symbols are normally created with nane::symbols():
      *
      * @code{.cpp}
-     * const nane::symbol t{0};
-     * const nane::symbol x{1};
+     * const auto [t, x] = nane::symbols<2>();
      *
      * const auto derivative = nane::function(
      *     -t * t * x
      * );
      * @endcode
      *
-     * represents
+     * This represents
      *
      * @f[
      * f(t,x) = -t^2x.
@@ -36,7 +35,7 @@ namespace nane
      * A symbol referring to a vector-valued argument can be indexed:
      *
      * @code{.cpp}
-     * const nane::symbol x{1};
+     * const auto [t, x] = nane::symbols<2>();
      *
      * const auto expression = x[0] + x[1];
      * @endcode
@@ -102,6 +101,52 @@ namespace nane
     private:
         std::size_t index_;
     };
+
+    /**
+     * @ingroup symbolic
+     *
+     * @brief Creates an ordered collection of symbolic arguments.
+     *
+     * The returned tuple contains symbols with consecutive zero-based
+     * argument indices.
+     *
+     * Structured bindings provide a convenient way to name the symbols:
+     *
+     * @code{.cpp}
+     * const auto [t, x] = nane::symbols<2>();
+     * @endcode
+     *
+     * Here, @c t represents argument zero and @c x represents argument one.
+     * The names themselves have no special meaning; their position determines
+     * the corresponding argument index.
+     *
+     * For example,
+     *
+     * @code{.cpp}
+     * const auto [t, x] = nane::symbols<2>();
+     *
+     * const auto derivative = nane::function(
+     *     -t * t * x
+     * );
+     * @endcode
+     *
+     * @tparam Count Number of symbols to create.
+     *
+     * @return Tuple containing symbols with indices from zero to
+     * @p Count minus one.
+     */
+    template <std::size_t Count>
+    [[nodiscard]] constexpr auto symbols()
+    {
+        static_assert(Count > 0, "at least one symbol must be requested.");
+
+        return []<std::size_t... Indices>(std::index_sequence<Indices...>)
+        {
+            return std::tuple{
+                symbol{Indices}...,
+            };
+        }(std::make_index_sequence<Count>{});
+    }
 
     template <details::symbolic_expression Expression>
     [[nodiscard]] auto operator-(Expression&& expression)
