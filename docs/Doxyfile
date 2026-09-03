@@ -11,8 +11,7 @@ OUTPUT_DIRECTORY       = build/docs
 # Input
 # -----------------------------------------------------------------------------
 
-INPUT                  = README.md \
-                         docs/mainpage.md \
+INPUT                  = docs/mainpage.dox \
                          lib/include \
                          viz/include
 
@@ -20,7 +19,7 @@ RECURSIVE              = YES
 
 FILE_PATTERNS          = *.hpp \
                          *.cpp \
-                         *.md
+                         *.dox
 
 EXCLUDE_PATTERNS       = */vendor/* \
                          */build/*
@@ -37,7 +36,6 @@ JAVADOC_AUTOBRIEF      = YES
 MULTILINE_CPP_IS_BRIEF = YES
 
 MARKDOWN_SUPPORT       = YES
-USE_MDFILE_AS_MAINPAGE = docs/mainpage.md
 
 # -----------------------------------------------------------------------------
 # Source browser
@@ -84,7 +82,8 @@ FULL_SIDEBAR           = NO
 HTML_COLORSTYLE        = LIGHT
 
 HTML_EXTRA_STYLESHEET  = docs/doxygen-awesome-css/doxygen-awesome.css \
-                         docs/doxygen-awesome-css/doxygen-awesome-sidebar-only.css
+                         docs/doxygen-awesome-css/doxygen-awesome-sidebar-only.css \
+                         docs/custom.css
 
 # -----------------------------------------------------------------------------
 # Math

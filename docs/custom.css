@@ -1,0 +1,33 @@
+.nane-hero {
+    padding: 2.5rem 0 2rem 0;
+    margin-bottom: 2rem;
+}
+
+.nane-hero h1 {
+    font-size: 3.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.nane-hero h3 {
+    margin-top: 0;
+    font-weight: 400;
+    opacity: 0.75;
+}
+
+.nane-hero p {
+    max-width: 850px;
+    font-size: 1.1rem;
+    line-height: 1.7;
+}
+
+.contents {
+    max-width: 1100px;
+}
+
+.contents h2 {
+    margin-top: 2.5rem;
+}
+
+div.fragment {
+    border-radius: 8px;
+}
