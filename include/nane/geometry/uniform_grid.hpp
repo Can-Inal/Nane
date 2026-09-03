@@ -9,6 +9,8 @@
 namespace nane
 {
     /**
+     *	@ingroup geometry
+     *
      * @brief Describes one uniformly spaced grid axis.
      *
      * A uniform axis is defined by a closed interval and the number of
@@ -41,6 +43,8 @@ namespace nane
     };
 
     /**
+     * @ingroup geometry
+     *
      * @brief Represents a uniform Cartesian grid.
      *
      * A uniform grid consists of one uniformly spaced axis for each spatial
