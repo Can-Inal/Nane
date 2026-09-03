@@ -1,31 +1,27 @@
 # ------------------------------------------------------------------------------
-# Sources
+# Catch2
 # ------------------------------------------------------------------------------
 
-file(
-    GLOB_RECURSE STUDIO_SOURCES
-    CONFIGURE_DEPENDS
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+add_subdirectory(
+    "${PROJECT_SOURCE_DIR}/vendor/catch2"
+    "${CMAKE_BINARY_DIR}/vendor/catch2"
+    EXCLUDE_FROM_ALL
 )
 
 # ------------------------------------------------------------------------------
-# Executable
+# Tests
 # ------------------------------------------------------------------------------
 
 add_executable(
-    Studio
-    ${STUDIO_SOURCES}
+    nane_tests
+    ode.cpp
 )
 
-# ------------------------------------------------------------------------------
-# Dependencies
-# ------------------------------------------------------------------------------
-
 target_link_libraries(
-    Studio
+    nane_tests
     PRIVATE
         nane::nane
-        nane::viz
+        Catch2::Catch2WithMain
 )
 
 # ------------------------------------------------------------------------------
@@ -34,7 +30,7 @@ target_link_libraries(
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
     target_compile_options(
-        Studio
+        nane_tests
         PRIVATE
             -Wall
             -Wextra
@@ -44,9 +40,23 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
     )
 elseif(MSVC)
     target_compile_options(
-        Studio
+        nane_tests
         PRIVATE
             /W4
             /permissive-
     )
 endif()
+
+# ------------------------------------------------------------------------------
+# CTest
+# ------------------------------------------------------------------------------
+
+list(
+    APPEND
+    CMAKE_MODULE_PATH
+    "${PROJECT_SOURCE_DIR}/vendor/catch2/extras"
+)
+
+include(Catch)
+
+catch_discover_tests(nane_tests)

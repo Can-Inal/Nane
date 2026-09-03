@@ -1,14 +1,24 @@
 # Nane
 
-[![Nane CI](https://github.com/Can-Inal/Nane/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/Can-Inal/Nane/actions/workflows/build.yml)
+<p align="left">
+    <a href="https://github.com/Can-Inal/Nane/actions/workflows/build.yml">
+        <img src="https://img.shields.io/github/actions/workflow/status/Can-Inal/Nane/build.yml?branch=main&style=for-the-badge&logo=github&logoColor=white&label=Build" alt="Build">
+    </a>
+    <a href="https://Can-Inal.github.io/Nane/">
+        <img src="https://img.shields.io/badge/Documentation-Doxygen-2C4AA8?style=for-the-badge&logo=doxygen&logoColor=white" alt="Documentation">
+    </a>
+    <img src="https://img.shields.io/badge/C%2B%2B-23-00599C?style=for-the-badge&logo=cplusplus&logoColor=white" alt="C++23">
+    <img src="https://img.shields.io/badge/CMake-3.20%2B-064F8C?style=for-the-badge&logo=cmake&logoColor=white" alt="CMake">
+</p>
 
-Nane is a C++23 scientific computing library focused on numerical methods,
-linear algebra, ordinary differential equations, computational grids, and
-scientific visualization.
+Nane is a modern C++23 scientific computing library focused on numerical
+methods, linear algebra, ordinary differential equations, nonlinear solvers,
+and computational grids.
 
-Nane uses Eigen for linear algebra and VTK for visualization.
+Nane uses Eigen directly for vector and matrix representations and provides
+small, composable interfaces for numerical algorithms.
 
-> Nane is currently under active development.
+> **Nane is currently under active development.**
 
 ## Features
 
@@ -20,7 +30,9 @@ Nane uses Eigen for linear algebra and VTK for visualization.
 - Implicit Euler
 - Heun's method
 - Fixed-point iteration
-- VTK-based scientific visualization
+- Optional OpenMP support
+- Cross-platform builds on Linux, macOS, and Windows
+- Catch2-based test suite
 
 ## Example
 

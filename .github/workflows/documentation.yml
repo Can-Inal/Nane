@@ -5,8 +5,8 @@ on:
     branches:
       - main
     paths:
-      - "lib/**"
-      - "viz/**"
+      - "include/**"
+      - "src/**"
       - "docs/**"
       - "README.md"
       - ".github/workflows/documentation.yml"

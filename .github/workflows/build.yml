@@ -26,8 +26,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             cmake \
-            ninja-build \
-            libvtk9-dev
+            ninja-build
 
       - name: Configure
         run: |
@@ -38,11 +37,11 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release \
             -DNANE_ENABLE_OPENMP=ON
 
-      - name: Show OpenMP configuration
-        run: grep NANE_ENABLE_OPENMP build/CMakeCache.txt
-
       - name: Build
         run: cmake --build build --parallel
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
 
   macos:
     name: macOS
@@ -56,8 +55,7 @@ jobs:
           submodules: recursive
 
       - name: Install dependencies
-        run: |
-          brew install vtk ninja
+        run: brew install ninja
 
       - name: Configure
         run: |
@@ -66,14 +64,13 @@ jobs:
             -B build \
             -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
-            -DNANE_ENABLE_OPENMP=OFF \
-            -DCMAKE_PREFIX_PATH="$(brew --prefix vtk)"
-
-      - name: Show OpenMP configuration
-        run: grep NANE_ENABLE_OPENMP build/CMakeCache.txt
+            -DNANE_ENABLE_OPENMP=OFF
 
       - name: Build
         run: cmake --build build --parallel
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
 
   windows:
     name: Windows
@@ -86,26 +83,20 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install VTK
-        shell: pwsh
-        run: |
-          vcpkg install "vtk[core,opengl]:x64-windows"
-
       - name: Configure
         shell: pwsh
         run: |
           cmake `
             -S . `
             -B build `
-            -DNANE_ENABLE_OPENMP=ON `
-            -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
-
-      - name: Show OpenMP configuration
-        shell: pwsh
-        run: |
-          Select-String -Path build/CMakeCache.txt -Pattern "NANE_ENABLE_OPENMP"
+            -DNANE_ENABLE_OPENMP=ON
 
       - name: Build
         shell: pwsh
         run: |
           cmake --build build --config Release --parallel
+
+      - name: Test
+        shell: pwsh
+        run: |
+          ctest --test-dir build -C Release --output-on-failure
