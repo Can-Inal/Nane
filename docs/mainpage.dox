@@ -16,9 +16,10 @@ Consider the initial value problem
 x(0) = 5.3.
 @f]
 
-It can be solved with Heun's method:
+It can be expressed symbolically and solved with Heun's method:
 
 @code{.cpp}
+#include <nane/core/symbolic.hpp>
 #include <nane/geometry/uniform_grid.hpp>
 #include <nane/numerics/ode/one_step.hpp>
 
@@ -28,10 +29,10 @@ int main()
         {0.0, 2.0, 101},
     });
 
-    auto derivative = [](double t, double x)
-    {
-        return -t * t * x;
-    };
+    const nane::symbol t{0};
+    const nane::symbol x{1};
+
+    const auto derivative = nane::function(-t * t * x);
 
     auto solution = nane::heun(derivative, 5.3, time_grid);
 
@@ -45,5 +46,7 @@ Nane uses Eigen directly for vector and matrix representations and does not
 introduce another linear algebra abstraction on top of Eigen.
 
 Numerical algorithms are provided as small, composable free functions.
+Lightweight symbolic expressions provide a concise way to define functions
+and coupled systems while remaining directly callable by numerical algorithms.
 
 */
