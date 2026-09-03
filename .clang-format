@@ -1,0 +1,32 @@
+BasedOnStyle: LLVM
+AccessModifierOffset: -4
+NamespaceIndentation: All
+
+ReferenceAlignment: Left
+PointerAlignment: Left
+
+AlignConsecutiveMacros:
+  Enabled: true
+  AcrossEmptyLines: true
+  AcrossComments: false
+
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines: 2
+
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+
+BreakBeforeBraces: Allman
+BreakBeforeConceptDeclarations: true
+BreakAfterAttributes: Never
+AlwaysBreakTemplateDeclarations: Yes
+ColumnLimit: 150
+TabWidth: 4
+IndentWidth: 4
+
+SortIncludes: CaseSensitive
+IncludeBlocks: Regroup
