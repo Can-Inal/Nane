@@ -1,4 +1,11 @@
 /**
+@defgroup core Core
+@brief Core types and utilities used throughout Nane.
+
+@defgroup symbolic Symbolic Expressions
+@ingroup core
+@brief Symbolic scalar expressions and vector-valued systems.
+
 @defgroup geometry Computational Grids
 @brief Computational grid types and utilities.
 

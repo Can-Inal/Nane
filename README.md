@@ -15,8 +15,8 @@
 </p>
 
 Nane is a modern C++23 scientific computing library focused on numerical
-methods, linear algebra, ordinary differential equations, nonlinear solvers,
-and computational grids.
+methods, ordinary differential equations, nonlinear solvers, computational
+grids, and lightweight symbolic expressions.
 
 Nane uses Eigen directly for vector and matrix representations and provides
 small, composable interfaces for numerical algorithms.
@@ -25,7 +25,10 @@ small, composable interfaces for numerical algorithms.
 
 ## Example
 
+A scalar initial value problem can be written directly as a symbolic expression:
+
 ```cpp
+#include <nane/core/symbolic.hpp>
 #include <nane/geometry/uniform_grid.hpp>
 #include <nane/numerics/ode/one_step.hpp>
 
@@ -35,16 +38,26 @@ int main()
         {0.0, 2.0, 101},
     });
 
-    auto derivative = [](double t, double x)
-    {
-        return -t * t * x;
-    };
+    const nane::symbol t{0};
+    const nane::symbol x{1};
+
+    const auto derivative = nane::function(-t * t * x);
 
     auto solution = nane::heun(derivative, 5.3, time_grid);
 
     return 0;
 }
 ```
+
+Symbolic expressions can also be used for coupled vector-valued systems:
+
+```cpp
+const nane::symbol x{1};
+
+const auto derivative = nane::system(x[1], -nane::sin(x[0]) - 0.1 * x[1]);
+```
+
+More examples are available in the [`examples`](examples/) directory.
 
 ## Documentation
 
