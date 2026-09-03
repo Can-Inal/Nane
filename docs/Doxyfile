@@ -102,7 +102,6 @@ HAVE_DOT               = YES
 DOT_IMAGE_FORMAT       = svg
 INTERACTIVE_SVG        = YES
 
-CLASS_DIAGRAMS         = YES
 COLLABORATION_GRAPH    = YES
 
 CALL_GRAPH             = NO
