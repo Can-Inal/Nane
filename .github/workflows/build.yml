@@ -35,7 +35,11 @@ jobs:
             -S . \
             -B build \
             -G Ninja \
-            -DCMAKE_BUILD_TYPE=Release
+            -DCMAKE_BUILD_TYPE=Release \
+            -DNANE_ENABLE_OPENMP=ON
+
+      - name: Show OpenMP configuration
+        run: grep NANE_ENABLE_OPENMP build/CMakeCache.txt
 
       - name: Build
         run: cmake --build build --parallel
@@ -65,6 +69,9 @@ jobs:
             -DNANE_ENABLE_OPENMP=OFF \
             -DCMAKE_PREFIX_PATH="$(brew --prefix vtk)"
 
+      - name: Show OpenMP configuration
+        run: grep NANE_ENABLE_OPENMP build/CMakeCache.txt
+
       - name: Build
         run: cmake --build build --parallel
 
@@ -90,7 +97,13 @@ jobs:
           cmake `
             -S . `
             -B build `
+            -DNANE_ENABLE_OPENMP=ON `
             -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
+
+      - name: Show OpenMP configuration
+        shell: pwsh
+        run: |
+          Select-String -Path build/CMakeCache.txt -Pattern "NANE_ENABLE_OPENMP"
 
       - name: Build
         shell: pwsh
