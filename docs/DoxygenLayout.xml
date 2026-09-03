@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<doxygenlayout version="2.0">
+    <navindex>
+        <tab
+            type="mainpage"
+            visible="yes"
+            title="Home"
+        />
+
+        <tab
+            type="usergroup"
+            visible="yes"
+            title="Numerics"
+            url="[none]"
+        >
+            <tab
+                type="user"
+                visible="yes"
+                title="Ordinary Differential Equations"
+                url="@ref ode"
+            />
+
+            <tab
+                type="user"
+                visible="yes"
+                title="Nonlinear Solvers"
+                url="@ref nonlinear"
+            />
+        </tab>
+
+        <tab
+            type="usergroup"
+            visible="yes"
+            title="Geometry"
+            url="[none]"
+        >
+            <tab
+                type="user"
+                visible="yes"
+                title="Computational Grids"
+                url="@ref geometry"
+            />
+        </tab>
+    </navindex>
+</doxygenlayout>

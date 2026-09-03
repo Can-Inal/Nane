@@ -9,6 +9,8 @@
 namespace nane
 {
     /**
+     * @ingroup ode
+     *
      * @brief Solves a scalar initial value problem using implicit Euler.
      *
      * Approximates
@@ -63,6 +65,8 @@ namespace nane
     }
 
     /**
+     * @ingroup ode
+     *
      * @brief Solves a vector-valued initial value problem using implicit Euler.
      *
      * Approximates

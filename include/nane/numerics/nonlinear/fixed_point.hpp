@@ -7,6 +7,8 @@
 namespace nane
 {
     /**
+     * @ingroup nonlinear
+     *
      * @brief Computes a scalar fixed point using fixed-point iteration.
      *
      * Solves the nonlinear equation
@@ -66,6 +68,8 @@ namespace nane
     }
 
     /**
+     * @ingroup nonlinear
+     *
      * @brief Computes a vector-valued fixed point using fixed-point iteration.
      *
      * Solves the nonlinear system

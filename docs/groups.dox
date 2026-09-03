@@ -1,0 +1,10 @@
+/**
+@defgroup geometry Computational Grids
+@brief Computational grid types and utilities.
+
+@defgroup ode Ordinary Differential Equations
+@brief Numerical methods for ordinary differential equations.
+
+@defgroup nonlinear Nonlinear Solvers
+@brief Numerical methods for nonlinear equations.
+*/

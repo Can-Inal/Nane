@@ -1,31 +1,28 @@
-.nane-hero {
-    padding: 2.5rem 0 2rem 0;
-    margin-bottom: 2rem;
+#main-nav>ul>li {
+    margin-right: 1rem;
 }
 
-.nane-hero h1 {
-    font-size: 3.5rem;
-    margin-bottom: 0.25rem;
-}
-
-.nane-hero h3 {
-    margin-top: 0;
-    font-weight: 400;
-    opacity: 0.75;
-}
-
-.nane-hero p {
-    max-width: 850px;
-    font-size: 1.1rem;
-    line-height: 1.7;
+#main-nav ul ul {
+    min-width: 20rem;
 }
 
 .contents {
     max-width: 1100px;
 }
 
+.contents h1 {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+}
+
 .contents h2 {
     margin-top: 2.5rem;
+}
+
+.contents p {
+    max-width: 850px;
+    font-size: 1.05rem;
+    line-height: 1.7;
 }
 
 div.fragment {

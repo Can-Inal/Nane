@@ -9,6 +9,8 @@
 namespace nane
 {
     /**
+     * @ingroup ode
+     *
      * @brief Solves a scalar initial value problem using Heun's method.
      *
      * Approximates
@@ -74,6 +76,8 @@ namespace nane
     }
 
     /**
+     * @ingroup ode
+     *
      * @brief Solves a vector-valued initial value problem using Heun's method.
      *
      * Approximates

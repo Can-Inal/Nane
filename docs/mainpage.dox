@@ -1,26 +1,14 @@
 /**
 @mainpage Nane
 
-<div class="nane-hero">
+**A modern C++23 scientific computing library.**
 
-# Nane
+Nane provides small and composable tools for numerical computing while
+using Eigen directly for vectors and matrices.
 
-### Modern numerical computing in C++23
+## Example
 
-Nane is a scientific computing library focused on numerical methods,
-ordinary differential equations, computational grids, linear algebra,
-and scientific visualization.
-
-The library provides small, composable numerical interfaces while using
-Eigen directly for linear algebra and VTK for visualization.
-
-</div>
-
----
-
-## Quick Start
-
-Consider the scalar initial value problem
+Consider the initial value problem
 
 @f[
 \dot{x}(t) = -t^2x(t),
@@ -51,112 +39,11 @@ int main()
 }
 @endcode
 
----
+## Design
 
-## Numerical Methods
+Nane uses Eigen directly for vector and matrix representations and does not
+introduce another linear algebra abstraction on top of Eigen.
 
-Nane currently provides scalar and vector-valued one-step methods for
-ordinary differential equations.
+Numerical algorithms are provided as small, composable free functions.
 
-### Runge-Kutta methods
-
-A general @f$s@f$-stage Runge-Kutta method is represented by the
-Butcher coefficients
-
-@f[
-\alpha \in \mathbb{R}^{s},
-\qquad
-B \in \mathbb{R}^{s\times s},
-\qquad
-\gamma \in \mathbb{R}^{s}.
-@f]
-
-The stages satisfy
-
-@f[
-k_i
-=
-f\left(
-t_n + \alpha_i\tau,
-x_n + \tau\sum_{j=1}^{s}\beta_{ij}k_j
-\right),
-@f]
-
-followed by
-
-@f[
-x_{n+1}
-=
-x_n
-+
-\tau\sum_{i=1}^{s}\gamma_i k_i.
-@f]
-
-Available methods currently include:
-
-- Explicit Euler
-- Implicit Euler
-- Heun's method
-- Generic explicit Runge-Kutta methods
-- Generic implicit Runge-Kutta methods
-- Fixed-point iteration for nonlinear stage systems
-
----
-
-## Computational Grids
-
-Uniform computational grids are represented by `nane::uniform_grid`.
-
-@code{.cpp}
-nane::uniform_grid<1> grid({
-    {0.0, 1.0, 101},
-});
-@endcode
-
-For a one-dimensional grid this defines an interval together with a
-uniformly distributed set of grid points.
-
----
-
-## Linear Algebra
-
-Nane uses Eigen directly for vectors and matrices.
-
-For example:
-
-@code{.cpp}
-Eigen::VectorXd state(2);
-state << 2.0, 1.0;
-@endcode
-
-Nane intentionally does not introduce another vector or matrix abstraction
-on top of Eigen.
-
----
-
-## Visualization
-
-The `nane::viz` library provides scientific plotting backed by VTK.
-
-The public plotting interface hides the VTK implementation details while
-allowing numerical results to be plotted directly from Eigen objects.
-
----
-
-## Documentation
-
-The API reference contains documentation for Nane's namespaces, classes,
-functions, and numerical algorithms.
-
-Useful starting points include:
-
-- @ref nane
-- `nane::uniform_grid`
-- `nane::runge_kutta`
-- `nane::explicit_euler`
-- `nane::implicit_euler`
-- `nane::heun`
-- `nane::fixed_point`
-
----
 */
