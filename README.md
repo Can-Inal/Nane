@@ -1,20 +1,16 @@
 # Nane
 
 <p align="left">
-    
     <a href="https://github.com/Can-Inal/Nane/actions/workflows/build.yml">
         <img src="https://img.shields.io/github/actions/workflow/status/Can-Inal/Nane/build.yml?branch=main&style=for-the-badge&logo=github&logoColor=white&label=Build" alt="Build">
     </a>
-    
-    <a href="https://Can-Inal.github.io/Nane/">
+    <a href="https://can-inal.github.io/Nane/">
         <img src="https://img.shields.io/badge/Documentation-Doxygen-2C4AA8?style=for-the-badge&logo=doxygen&logoColor=white" alt="Documentation">
     </a>
-    
     <img src="https://img.shields.io/badge/C%2B%2B-23-00599C?style=for-the-badge&logo=cplusplus&logoColor=white" alt="C++23">
     <img src="https://img.shields.io/badge/CMake-3.20%2B-064F8C?style=for-the-badge&logo=cmake&logoColor=white" alt="CMake">
-    
     <a href="LICENSE">
-    <img src="https://img.shields.io/github/license/Can-Inal/Nane?style=for-the-badge" alt="License">
+        <img src="https://img.shields.io/github/license/Can-Inal/Nane?style=for-the-badge" alt="License">
     </a>
 </p>
 
@@ -62,3 +58,15 @@ int main()
 
     return 0;
 }
+```
+
+## Documentation
+
+The API documentation is generated with Doxygen and published through
+GitHub Pages.
+
+[Open the Nane documentation](https://can-inal.github.io/Nane/)
+
+## License
+
+Nane is available under the [MIT License](LICENSE).
