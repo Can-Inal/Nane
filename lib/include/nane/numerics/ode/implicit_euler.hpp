@@ -1,62 +1,124 @@
 #pragma once
 
 #include "nane/geometry/uniform_grid.hpp"
-#include "nane/linalg/vector.hpp"
-#include "nane/numerics/nonlinear/fixed_point.hpp"
+#include "nane/numerics/ode/runge_kutta.hpp"
 
 #include <Eigen/Core>
-#include <cstddef>
+#include <utility>
 
 namespace nane
 {
+    /**
+     * @brief Solves a scalar initial value problem using implicit Euler.
+     *
+     * Approximates
+     *
+     * @f[
+     * \dot{x}(t) = f(t, x(t))
+     * @f]
+     *
+     * using
+     *
+     * @f[
+     * x_{n+1}
+     * =
+     * x_n
+     * +
+     * \tau_n
+     * f(t_{n+1}, x_{n+1}).
+     * @f]
+     *
+     * The resulting implicit equation is solved through the Runge-Kutta
+     * formulation using fixed-point iteration for the stage equation.
+     *
+     * @tparam Function Type of the right-hand-side function.
+     *
+     * @param function Right-hand-side function @f$f(t,x)@f$.
+     * @param initial_value Initial value.
+     * @param time_grid Time discretization.
+     *
+     * @return Numerical solution at all time-grid points.
+     */
     template <typename Function>
-    [[nodiscard]] Eigen::VectorXd implicit_euler(Function&& function, double initial_value, const uniform_grid<1>& time_grid)
+    [[nodiscard]] Eigen::VectorXd implicit_euler(Function&& function, double initial_value, const nane::uniform_grid<1>& time_grid)
     {
         // x(n+1) = x(n) + tau*f(t(n+1), x(n+1))
         // x(n+1) = x(n) + tau*k
         // k = f(t(n+1), x(n+1))
         // k = f(t(n+1), x(n) + tau*k)
 
-        const std::size_t count = time_grid.count(0);
-        const double tau = time_grid.spacing(0);
+        // Butcher table for implicit euler.
+        // alpha = [1], Beta = [1], gamma = [1]
 
-        Eigen::VectorXd solution = nane::vector(count);
-        solution[0] = initial_value;
+        Eigen::VectorXd alpha(1);
+        alpha << 1.0;
 
-        for (auto i = 0; i < (int)count - 1; i++)
-        {
-            const auto next_time = time_grid.axis(0)[i + 1];                                                   // t(n+1)
-            const auto mapping = [&](double stage) { return function(next_time, solution[i] + tau * stage); }; // f(t(n+1), x(n) + tau*k)
+        Eigen::MatrixXd beta(1, 1);
+        beta << 1.0;
 
-            const auto k = nane::fixed_point(mapping, 0.0);
+        Eigen::VectorXd gamma(1);
+        gamma << 1.0;
 
-            solution[i + 1] = solution[i] + tau * k;
-        }
-
-        return solution;
+        return nane::runge_kutta(std::forward<Function>(function), initial_value, time_grid, alpha, beta, gamma);
     }
 
+    /**
+     * @brief Solves a vector-valued initial value problem using implicit Euler.
+     *
+     * Approximates
+     *
+     * @f[
+     * \dot{\mathbf{x}}(t)
+     * =
+     * \mathbf{f}(t, \mathbf{x}(t))
+     * @f]
+     *
+     * using
+     *
+     * @f[
+     * \mathbf{x}_{n+1}
+     * =
+     * \mathbf{x}_n
+     * +
+     * \tau_n
+     * \mathbf{f}(t_{n+1}, \mathbf{x}_{n+1}).
+     * @f]
+     *
+     * The resulting implicit system is solved through the Runge-Kutta
+     * formulation using fixed-point iteration for the stage equation.
+     *
+     * Each column of the returned matrix contains the numerical state at
+     * one time-grid point.
+     *
+     * @tparam Function Type of the right-hand-side function.
+     *
+     * @param function Right-hand-side function.
+     * @param initial_value Initial state vector.
+     * @param time_grid Time discretization.
+     *
+     * @return Matrix whose columns contain the numerical states.
+     */
     template <typename Function>
-    [[nodiscard]] Eigen::MatrixXd implicit_euler(Function&& function, const Eigen::VectorXd& initial_value, const uniform_grid<1>& time_grid)
+    [[nodiscard]] Eigen::MatrixXd implicit_euler(Function&& function, const Eigen::VectorXd& initial_value, const nane::uniform_grid<1>& time_grid)
     {
-        const std::size_t count = time_grid.count(0);
-        const double tau = time_grid.spacing(0);
+        // x(n+1) = x(n) + tau*f(t(n+1), x(n+1))
+        // x(n+1) = x(n) + tau*k
+        // k = f(t(n+1), x(n+1))
+        // k = f(t(n+1), x(n) + tau*k)
 
-        const auto dimension = initial_value.size();
+        // Butcher table for implicit euler.
+        // alpha = [1], Beta = [1], gamma = [1]
 
-        Eigen::MatrixXd solution(dimension, count);
-        solution.col(0) = initial_value;
+        Eigen::VectorXd alpha(1);
+        alpha << 1.0;
 
-        for (auto i = 0; i < (int)count - 1; i++)
-        {
-            const auto next_time = time_grid.axis(0)[i + 1];
-            const auto mapping = [&](const Eigen::VectorXd& stage) { return function(next_time, solution.col(i) + tau * stage); };
+        Eigen::MatrixXd beta(1, 1);
+        beta << 1.0;
 
-            const auto k = nane::fixed_point(mapping, nane::vector(static_cast<std::size_t>(dimension)));
+        Eigen::VectorXd gamma(1);
+        gamma << 1.0;
 
-            solution.col(i + 1) = solution.col(i) + tau * k;
-        }
-
-        return solution;
+        return nane::runge_kutta(std::forward<Function>(function), initial_value, time_grid, alpha, beta, gamma);
     }
+
 } // namespace nane

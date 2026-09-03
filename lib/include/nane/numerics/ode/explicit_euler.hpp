@@ -1,10 +1,10 @@
 #pragma once
 
 #include "nane/geometry/uniform_grid.hpp"
-#include "nane/linalg/vector.hpp"
+#include "nane/numerics/ode/runge_kutta.hpp"
 
 #include <Eigen/Core>
-#include <cstddef>
+#include <utility>
 
 namespace nane
 {
@@ -36,21 +36,21 @@ namespace nane
      * @return Numerical solution at all time-grid points.
      */
     template <typename Function>
-    [[nodiscard]] Eigen::VectorXd explicit_euler(Function&& function, double initial_value, const uniform_grid<1>& time_grid)
+    [[nodiscard]] Eigen::VectorXd explicit_euler(Function&& function, double initial_value, const nane::uniform_grid<1>& time_grid)
     {
-        const std::size_t count = time_grid.count(0);
-        const double tau = time_grid.spacing(0);
+        // Butcher table for explicit euler.
+        // alpha = [0], Beta = [0], gamma = [1]
 
-        Eigen::VectorXd solution = nane::vector(count);
-        solution[0] = initial_value;
+        Eigen::VectorXd alpha(1);
+        alpha << 0.0;
 
-        for (auto i = 0; i < (int)count - 1; ++i)
-        {
-            const double t = time_grid.axis(0)[i];
-            solution[i + 1] = solution[i] + tau * function(t, solution[i]);
-        }
+        Eigen::MatrixXd beta(1, 1);
+        beta << 0.0;
 
-        return solution;
+        Eigen::VectorXd gamma(1);
+        gamma << 1.0;
+
+        return nane::runge_kutta(std::forward<Function>(function), initial_value, time_grid, alpha, beta, gamma);
     }
 
     /**
@@ -87,22 +87,21 @@ namespace nane
      * @return Matrix whose columns contain the numerical states.
      */
     template <typename Function>
-    [[nodiscard]] Eigen::MatrixXd explicit_euler(Function&& function, const Eigen::VectorXd& initial_value, const uniform_grid<1>& time_grid)
+    [[nodiscard]] Eigen::MatrixXd explicit_euler(Function&& function, const Eigen::VectorXd& initial_value, const nane::uniform_grid<1>& time_grid)
     {
-        const std::size_t count = time_grid.count(0);
-        const double tau = time_grid.spacing(0);
+        // Butcher table for explicit euler.
+        // alpha = [0], Beta = [0], gamma = [1]
 
-        const auto dimension = initial_value.size();
+        Eigen::VectorXd alpha(1);
+        alpha << 0.0;
 
-        Eigen::MatrixXd solution(dimension, count);
-        solution.col(0) = initial_value;
+        Eigen::MatrixXd beta(1, 1);
+        beta << 0.0;
 
-        for (auto i = 0; i < (int)count - 1; ++i)
-        {
-            const double t = time_grid.axis(0)[i];
-            solution.col(i + 1) = solution.col(i) + tau * function(t, solution.col(i));
-        }
+        Eigen::VectorXd gamma(1);
+        gamma << 1.0;
 
-        return solution;
+        return nane::runge_kutta(std::forward<Function>(function), initial_value, time_grid, alpha, beta, gamma);
     }
+
 } // namespace nane

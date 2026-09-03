@@ -3,7 +3,6 @@
 #include <cstddef>
 #include <iostream>
 #include <nane/geometry/uniform_grid.hpp>
-#include <nane/linalg/vector.hpp>
 #include <nane/numerics/ode/one_step.hpp>
 #include <nane/viz/plotting/plot.hpp>
 
@@ -46,7 +45,7 @@ int main()
     // Scalar exact solution
     // -------------------------------------------------------------------------
 
-    auto scalar_exact_solution = nane::vector(exact_steps + 1);
+    Eigen::VectorXd scalar_exact_solution(static_cast<Eigen::Index>(exact_steps + 1));
 
     for (auto i = 0; i <= (int)exact_steps; ++i)
     {
@@ -58,9 +57,9 @@ int main()
     // Scalar errors
     // -------------------------------------------------------------------------
 
-    auto explicit_error = nane::vector(steps + 1);
-    auto implicit_error = nane::vector(steps + 1);
-    auto heun_error = nane::vector(steps + 1);
+    Eigen::VectorXd explicit_error(static_cast<Eigen::Index>(steps + 1));
+    Eigen::VectorXd implicit_error(static_cast<Eigen::Index>(steps + 1));
+    Eigen::VectorXd heun_error(static_cast<Eigen::Index>(steps + 1));
 
     for (auto i = 0; i <= (int)steps; ++i)
     {
@@ -89,7 +88,7 @@ int main()
 
     auto vector_derivative = [](double, const Eigen::VectorXd& state)
     {
-        auto derivative = nane::vector(2);
+        Eigen::VectorXd derivative(2);
 
         derivative[0] = -state[0];
         derivative[1] = -2.0 * state[1];
@@ -97,7 +96,7 @@ int main()
         return derivative;
     };
 
-    auto vector_initial_value = nane::vector(2);
+    Eigen::VectorXd vector_initial_value(2);
     vector_initial_value[0] = 2.0;
     vector_initial_value[1] = 1.0;
 
@@ -107,8 +106,8 @@ int main()
     // Vector exact solution
     // -------------------------------------------------------------------------
 
-    auto vector_exact_x = nane::vector(exact_steps + 1);
-    auto vector_exact_y = nane::vector(exact_steps + 1);
+    Eigen::VectorXd vector_exact_x(static_cast<Eigen::Index>(exact_steps + 1));
+    Eigen::VectorXd vector_exact_y(static_cast<Eigen::Index>(exact_steps + 1));
 
     for (auto i = 0; i <= (int)exact_steps; ++i)
     {
@@ -122,8 +121,8 @@ int main()
     // Vector errors
     // -------------------------------------------------------------------------
 
-    auto vector_error_x = nane::vector(steps + 1);
-    auto vector_error_y = nane::vector(steps + 1);
+    Eigen::VectorXd vector_error_x(static_cast<Eigen::Index>(steps + 1));
+    Eigen::VectorXd vector_error_y(static_cast<Eigen::Index>(steps + 1));
 
     for (auto i = 0; i <= (int)steps; ++i)
     {
