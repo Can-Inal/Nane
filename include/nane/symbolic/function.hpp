@@ -1,13 +1,11 @@
 #pragma once
 
-#include <nane/core/details/factory.hpp>
+#include <nane/symbolic/details/factory.hpp>
 #include <utility>
 
 namespace nane
 {
     /**
-     * @ingroup symbolic
-     *
      * @brief Creates a scalar-valued function from a symbolic expression.
      *
      * The returned expression is callable and can be passed directly to

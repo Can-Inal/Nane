@@ -1,14 +1,12 @@
 #pragma once
 
-#include <nane/core/details/factory.hpp>
-#include <nane/core/details/system.hpp>
+#include <nane/symbolic/details/factory.hpp>
+#include <nane/symbolic/details/system.hpp>
 #include <utility>
 
 namespace nane
 {
     /**
-     * @ingroup symbolic
-     *
      * @brief Creates a vector-valued function from symbolic expressions.
      *
      * Each supplied expression defines one component of the returned vector.

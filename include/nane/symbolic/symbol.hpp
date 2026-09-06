@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstddef>
-#include <nane/core/details/factory.hpp>
+#include <nane/symbolic/details/factory.hpp>
 #include <stdexcept>
 #include <tuple>
 #include <utility>
@@ -9,8 +9,6 @@
 namespace nane
 {
     /**
-     * @ingroup symbolic
-     *
      * @brief Represents an argument of a symbolic expression.
      *
      * A symbol refers to one of the arguments supplied when evaluating a
@@ -103,8 +101,6 @@ namespace nane
     };
 
     /**
-     * @ingroup symbolic
-     *
      * @brief Creates an ordered collection of symbolic arguments.
      *
      * The returned tuple contains symbols with consecutive zero-based

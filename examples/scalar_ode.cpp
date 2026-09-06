@@ -1,6 +1,6 @@
-#include <nane/core/symbolic.hpp>
 #include <nane/geometry/uniform_grid.hpp>
 #include <nane/numerics/ode/one_step.hpp>
+#include <nane/symbolic.hpp>
 
 int main()
 {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <nane/core/details/expression.hpp>
+#include <nane/symbolic/details/expression.hpp>
 #include <utility>
 
 namespace nane

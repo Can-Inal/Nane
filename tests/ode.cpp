@@ -2,11 +2,11 @@
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include <cmath>
-#include <nane/core/symbolic.hpp>
 #include <nane/geometry/uniform_grid.hpp>
 #include <nane/numerics/ode/explicit_euler.hpp>
 #include <nane/numerics/ode/heun.hpp>
 #include <nane/numerics/ode/implicit_euler.hpp>
+#include <nane/symbolic.hpp>
 
 TEST_CASE("Explicit Euler preserves a constant scalar solution", "[ode][explicit_euler]")
 {

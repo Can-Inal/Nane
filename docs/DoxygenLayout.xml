@@ -8,20 +8,7 @@
             title="Home"
         />
 
-        <tab
-            type="usergroup"
-            visible="yes"
-            title="Core"
-            url="[none]"
-        >
-            <tab
-                type="user"
-                visible="yes"
-                title="Symbolic Expressions"
-                url="@ref symbolic"
-            />
-        </tab>
-
+        
         <tab
             type="usergroup"
             visible="yes"

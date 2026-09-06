@@ -1,13 +1,11 @@
 #pragma once
 
-#include <nane/core/details/factory.hpp>
+#include <nane/symbolic/details/factory.hpp>
 #include <utility>
 
 namespace nane
 {
     /**
-     * @ingroup symbolic
-     *
      * @brief Creates the sine of a symbolic expression.
      *
      * @param expression Symbolic expression.
@@ -21,8 +19,6 @@ namespace nane
     }
 
     /**
-     * @ingroup symbolic
-     *
      * @brief Creates the cosine of a symbolic expression.
      *
      * @param expression Symbolic expression.
@@ -36,8 +32,6 @@ namespace nane
     }
 
     /**
-     * @ingroup symbolic
-     *
      * @brief Creates the tangent of a symbolic expression.
      *
      * @param expression Symbolic expression.
@@ -51,8 +45,6 @@ namespace nane
     }
 
     /**
-     * @ingroup symbolic
-     *
      * @brief Creates the exponential of a symbolic expression.
      *
      * @param expression Symbolic expression.
@@ -66,8 +58,6 @@ namespace nane
     }
 
     /**
-     * @ingroup symbolic
-     *
      * @brief Creates the natural logarithm of a symbolic expression.
      *
      * @param expression Symbolic expression.
@@ -81,8 +71,6 @@ namespace nane
     }
 
     /**
-     * @ingroup symbolic
-     *
      * @brief Creates the square root of a symbolic expression.
      *
      * @param expression Symbolic expression.
@@ -96,8 +84,6 @@ namespace nane
     }
 
     /**
-     * @ingroup symbolic
-     *
      * @brief Creates the absolute value of a symbolic expression.
      *
      * @param expression Symbolic expression.
@@ -111,8 +97,6 @@ namespace nane
     }
 
     /**
-     * @ingroup symbolic
-     *
      * @brief Raises a symbolic expression to a power.
      *
      * At least one of the supplied operands must be symbolic.
