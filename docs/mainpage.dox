@@ -19,7 +19,7 @@ x(0) = 5.3.
 It can be expressed symbolically and solved with Heun's method:
 
 @code{.cpp}
-#include <nane/core/symbolic.hpp>
+#include <nane/symbolic.hpp>
 #include <nane/geometry/uniform_grid.hpp>
 #include <nane/numerics/ode/one_step.hpp>
 

@@ -28,7 +28,7 @@ small, composable interfaces for numerical algorithms.
 A scalar initial value problem can be written directly as a symbolic expression:
 
 ```cpp
-#include <nane/core/symbolic.hpp>
+#include <nane/symbolic.hpp>
 #include <nane/geometry/uniform_grid.hpp>
 #include <nane/numerics/ode/one_step.hpp>
 
