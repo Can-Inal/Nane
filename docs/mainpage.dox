@@ -41,9 +41,6 @@ int main()
 
 ## Design
 
-Nane uses Eigen directly for vector and matrix representations and does not
-introduce another linear algebra abstraction on top of Eigen.
-
 Numerical algorithms are provided as small, composable free functions.
 Lightweight symbolic expressions provide a concise way to define functions
 and coupled systems while remaining directly callable by numerical algorithms.
