@@ -6,6 +6,7 @@
 #include <nane/numerics/ode/explicit_euler.hpp>
 #include <nane/numerics/ode/heun.hpp>
 #include <nane/numerics/ode/implicit_euler.hpp>
+#include <nane/numerics/ode/ivp.hpp>
 #include <nane/symbolic.hpp>
 
 TEST_CASE("Explicit Euler preserves a constant scalar solution", "[ode][explicit_euler]")
@@ -15,8 +16,9 @@ TEST_CASE("Explicit Euler preserves a constant scalar solution", "[ode][explicit
     });
 
     const auto derivative = nane::function(0.0);
+    const auto problem = nane::ivp(derivative, 5.3);
 
-    const auto solution = nane::explicit_euler(derivative, 5.3, time_grid);
+    const auto solution = nane::explicit_euler(problem, time_grid);
 
     for (Eigen::Index i = 0; i < solution.size(); i++)
         REQUIRE(solution[i] == Catch::Approx(5.3).margin(1e-12));
@@ -29,8 +31,9 @@ TEST_CASE("Implicit Euler preserves a constant scalar solution", "[ode][implicit
     });
 
     const auto derivative = nane::function(0.0);
+    const auto problem = nane::ivp(derivative, 5.3);
 
-    const auto solution = nane::implicit_euler(derivative, 5.3, time_grid);
+    const auto solution = nane::implicit_euler(problem, time_grid);
 
     for (Eigen::Index i = 0; i < solution.size(); i++)
         REQUIRE(solution[i] == Catch::Approx(5.3).margin(1e-12));
@@ -43,8 +46,9 @@ TEST_CASE("Heun preserves a constant scalar solution", "[ode][heun]")
     });
 
     const auto derivative = nane::function(0.0);
+    const auto problem = nane::ivp(derivative, 5.3);
 
-    const auto solution = nane::heun(derivative, 5.3, time_grid);
+    const auto solution = nane::heun(problem, time_grid);
 
     for (Eigen::Index i = 0; i < solution.size(); i++)
         REQUIRE(solution[i] == Catch::Approx(5.3).margin(1e-12));
@@ -61,7 +65,9 @@ TEST_CASE("Implicit Euler supports vector-valued systems", "[ode][implicit_euler
     Eigen::VectorXd initial_value(2);
     initial_value << 2.0, 1.0;
 
-    const auto solution = nane::implicit_euler(derivative, initial_value, time_grid);
+    const auto problem = nane::ivp(derivative, initial_value);
+
+    const auto solution = nane::implicit_euler(problem, time_grid);
 
     for (Eigen::Index i = 0; i < solution.cols(); i++)
         REQUIRE((solution.col(i) - initial_value).norm() < 1e-12);
@@ -76,8 +82,9 @@ TEST_CASE("Heun accepts a symbolic scalar derivative", "[ode][heun][symbolic]")
     const auto [t, x] = nane::symbols<2>();
 
     const auto derivative = nane::function(-t * t * x);
+    const auto problem = nane::ivp(derivative, 1.0);
 
-    const auto solution = nane::heun(derivative, 1.0, time_grid);
+    const auto solution = nane::heun(problem, time_grid);
 
     REQUIRE(solution[0] == Catch::Approx(1.0).margin(1e-12));
 
@@ -97,7 +104,9 @@ TEST_CASE("Heun accepts a symbolic coupled system", "[ode][heun][vector][symboli
     Eigen::VectorXd initial_value(2);
     initial_value << 1.0, 0.0;
 
-    const auto solution = nane::heun(derivative, initial_value, time_grid);
+    const auto problem = nane::ivp(derivative, initial_value);
+
+    const auto solution = nane::heun(problem, time_grid);
 
     REQUIRE(solution(0, 0) == Catch::Approx(1.0).margin(1e-12));
     REQUIRE(solution(1, 0) == Catch::Approx(0.0).margin(1e-12));
