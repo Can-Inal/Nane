@@ -10,13 +10,13 @@ int main()
     });
 
     const auto [t, x] = nane::symbols<2>();
-
     const auto derivative = nane::system(x[1], -nane::sin(x[0]) - 0.1 * x[1]);
 
     Eigen::VectorXd initial_value(2);
     initial_value << 1.0, 0.0;
 
-    [[maybe_unused]] auto solution = nane::heun(derivative, initial_value, time_grid);
+    const auto problem = nane::ivp(derivative, initial_value);
+    [[maybe_unused]] auto solution = nane::heun(problem, time_grid);
 
     return 0;
 }

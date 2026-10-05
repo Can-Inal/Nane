@@ -28,9 +28,9 @@ small, composable interfaces for numerical algorithms.
 A scalar initial value problem can be written directly as a symbolic expression:
 
 ```cpp
-#include <nane/symbolic.hpp>
 #include <nane/geometry/uniform_grid.hpp>
 #include <nane/numerics/ode/one_step.hpp>
+#include <nane/symbolic.hpp>
 
 int main()
 {
@@ -39,10 +39,10 @@ int main()
     });
 
     const auto [t, x] = nane::symbols<2>();
-
     const auto derivative = nane::function(-t * t * x);
 
-    auto solution = nane::heun(derivative, 5.3, time_grid);
+    const auto problem = nane::ivp(derivative, 5.3);
+    [[maybe_unused]] auto solution = nane::heun(problem, time_grid);
 
     return 0;
 }

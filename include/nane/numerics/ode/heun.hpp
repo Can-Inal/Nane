@@ -1,17 +1,17 @@
 #pragma once
 
 #include "nane/geometry/uniform_grid.hpp"
+#include "nane/numerics/ode/ivp.hpp"
 #include "nane/numerics/ode/runge_kutta.hpp"
 
 #include <Eigen/Core>
-#include <utility>
 
 namespace nane
 {
     /**
      * @ingroup ode
      *
-     * @brief Solves a scalar initial value problem using Heun's method.
+     * @brief Solves an initial value problem using Heun's method.
      *
      * Approximates
      *
@@ -44,21 +44,26 @@ namespace nane
      * \right).
      * @f]
      *
-     * @tparam Function Type of the right-hand-side function.
+     * @tparam Derivative Type of the right-hand-side function.
+     * @tparam InitialValue Type of the initial value.
      *
-     * @param function Right-hand-side function @f$f(t,x)@f$.
-     * @param initial_value Initial value.
+     * @param problem Initial value problem containing the derivative and
+     * initial value.
      * @param time_grid Time discretization.
      *
      * @return Numerical solution at all time-grid points.
      */
-    template <typename Function>
-    [[nodiscard]] Eigen::VectorXd heun(Function&& function, double initial_value, const nane::uniform_grid<1>& time_grid)
+    template <typename Derivative, typename InitialValue>
+    [[nodiscard]] auto heun(const nane::ivp<Derivative, InitialValue>& problem, const nane::uniform_grid<1>& time_grid)
     {
-        // Butcher table for heun's method.
-        // alpha(0) = 0, alpha(1) = 1.
-        // Beta(2, 1) = 1, others 0.
-        // gamma(1) = gamma(2) = 1/2.
+        // Butcher coefficients for Heun's method:
+        //
+        // alpha = [0, 1]^T
+        //
+        //        [0  0]
+        // beta = [1  0]
+        //
+        // gamma = [1/2, 1/2]^T
 
         Eigen::VectorXd alpha(2);
         alpha << 0.0, 1.0;
@@ -72,80 +77,7 @@ namespace nane
         Eigen::VectorXd gamma(2);
         gamma << 0.5, 0.5;
 
-        return nane::runge_kutta(std::forward<Function>(function), initial_value, time_grid, alpha, beta, gamma);
-    }
-
-    /**
-     * @ingroup ode
-     *
-     * @brief Solves a vector-valued initial value problem using Heun's method.
-     *
-     * Approximates
-     *
-     * @f[
-     * \dot{\mathbf{x}}(t)
-     * =
-     * \mathbf{f}(t, \mathbf{x}(t))
-     * @f]
-     *
-     * using the predictor
-     *
-     * @f[
-     * \tilde{\mathbf{x}}_{n+1}
-     * =
-     * \mathbf{x}_n
-     * +
-     * \tau_n
-     * \mathbf{f}(t_n, \mathbf{x}_n)
-     * @f]
-     *
-     * and the corrected update
-     *
-     * @f[
-     * \mathbf{x}_{n+1}
-     * =
-     * \mathbf{x}_n
-     * +
-     * \frac{\tau_n}{2}
-     * \left(
-     * \mathbf{f}(t_n, \mathbf{x}_n)
-     * +
-     * \mathbf{f}(t_{n+1}, \tilde{\mathbf{x}}_{n+1})
-     * \right).
-     * @f]
-     *
-     * Each column of the returned matrix contains the numerical state at
-     * one time-grid point.
-     *
-     * @tparam Function Type of the right-hand-side function.
-     *
-     * @param function Right-hand-side function.
-     * @param initial_value Initial state vector.
-     * @param time_grid Time discretization.
-     *
-     * @return Matrix whose columns contain the numerical states.
-     */
-    template <typename Function>
-    [[nodiscard]] Eigen::MatrixXd heun(Function&& function, const Eigen::VectorXd& initial_value, const nane::uniform_grid<1>& time_grid)
-    {
-        // Butcher table for heun's method.
-        // alpha(0) = 0, alpha(1) = 1.
-        // Beta(2, 1) = 1, others 0.
-        // gamma(1) = gamma(2) = 1/2.
-
-        Eigen::VectorXd alpha(2);
-        alpha << 0.0, 1.0;
-
-        // clang-format off
-        Eigen::MatrixXd beta(2, 2);
-        beta << 0.0, 0.0,
-                1.0, 0.0;
-        // clang-format on
-
-        Eigen::VectorXd gamma(2);
-        gamma << 0.5, 0.5;
-
-        return nane::runge_kutta(std::forward<Function>(function), initial_value, time_grid, alpha, beta, gamma);
+        return nane::runge_kutta(problem, time_grid, alpha, beta, gamma);
     }
 
 } // namespace nane

@@ -3,4 +3,5 @@
 #include "nane/numerics/ode/explicit_euler.hpp"
 #include "nane/numerics/ode/heun.hpp"
 #include "nane/numerics/ode/implicit_euler.hpp"
+#include "nane/numerics/ode/ivp.hpp"
 #include "nane/numerics/ode/runge_kutta.hpp"

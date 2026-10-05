@@ -2,6 +2,7 @@
 
 #include "nane/geometry/uniform_grid.hpp"
 #include "nane/numerics/nonlinear/fixed_point.hpp"
+#include "nane/numerics/ode/ivp.hpp"
 
 #include <Eigen/Core>
 #include <cstddef>
@@ -49,10 +50,9 @@ namespace nane
      * explicitly. Otherwise, the coupled stage equations are solved using
      * fixed-point iteration.
      *
-     * @tparam Function Type of the right-hand-side function.
+     * @tparam Derivative Type of the right-hand-side function.
      *
-     * @param function Right-hand-side function @f$f(t,x)@f$.
-     * @param initial_value Initial value.
+     * @param problem Scalar initial value problem.
      * @param time_grid Time discretization.
      * @param alpha Runge-Kutta stage-time coefficients.
      * @param beta Runge-Kutta stage coefficients.
@@ -60,16 +60,23 @@ namespace nane
      *
      * @return Numerical solution at all time-grid points.
      */
-    template <typename Function>
-    [[nodiscard]] Eigen::VectorXd runge_kutta(Function&& function, double initial_value, const nane::uniform_grid<1>& time_grid,
+    template <typename Derivative>
+    [[nodiscard]] Eigen::VectorXd runge_kutta(const nane::ivp<Derivative, double>& problem, const nane::uniform_grid<1>& time_grid,
                                               const Eigen::VectorXd& alpha, const Eigen::MatrixXd& beta, const Eigen::VectorXd& gamma)
     {
         const double tolerance = 1e-12;
 
-        // we determine the stage count.
-        const int stage_count = (int)gamma.size();
+        // Extract the mathematical data of the IVP. The initial value
+        // and derivative are owned by the IVP and remain valid for the
+        // complete integration.
+        const auto& derivative = problem.derivative();
+        const double initial_value = problem.initial_value();
 
-        // checking the dimension match.
+        // The number of Runge-Kutta stages is determined by gamma.
+        const int stage_count = static_cast<int>(gamma.size());
+
+        // Check that the supplied Butcher coefficients have compatible
+        // dimensions.
         if (stage_count == 0)
             throw std::invalid_argument("Runge-Kutta method must have at least one stage.");
 
@@ -79,56 +86,65 @@ namespace nane
         if (beta.rows() != stage_count || beta.cols() != stage_count)
             throw std::invalid_argument("Runge-Kutta beta matrix must be square and match stage count.");
 
-        // we determine if the given butcher table would construct an explicit or implicit Runge-Kutta method.
+        // A Runge-Kutta method is explicit when beta is strictly lower
+        // triangular. Otherwise the stage equations are coupled and must
+        // be solved implicitly.
         const bool is_explicit = beta.isLowerTriangular(tolerance) && beta.diagonal().isZero(tolerance);
 
-        // create the stage vector.
+        // Stores the scalar stage values k_i.
         Eigen::VectorXd stage = Eigen::VectorXd::Zero(stage_count);
 
-        // now the count of time steps and distance between time points.
+        // The time grid is uniform, so every integration step uses the
+        // same step size tau.
         const std::size_t count = time_grid.count(0);
         const double tau = time_grid.spacing(0);
 
-        // we construct the solution vector and give the initial value.
+        // One scalar solution value is stored for every point of the
+        // time grid.
         Eigen::VectorXd solution = Eigen::VectorXd::Zero(static_cast<Eigen::Index>(count));
+
         solution[0] = initial_value;
 
-        for (auto i = 0; i < (int)count - 1; i++)
+        for (auto i = 0; i < static_cast<int>(count) - 1; ++i)
         {
             const auto current_time = time_grid.axis(0)[i];
 
             if (is_explicit)
             {
-                // for an explicit Runge-Kutta method, every stage only depends on previously computed stages.
-                for (auto j = 0; j < stage_count; j++)
+                // For an explicit Runge-Kutta method, stage j depends
+                // only on stages 0, ..., j - 1, which have already been
+                // computed.
+                for (auto j = 0; j < stage_count; ++j)
                 {
                     const auto stage_sum = beta.row(j).head(j).dot(stage.head(j));
 
-                    stage[j] = function(current_time + alpha[j] * tau, solution[i] + tau * stage_sum);
+                    stage[j] = derivative(current_time + alpha[j] * tau, solution[i] + tau * stage_sum);
                 }
             }
             else
             {
-                // for an implicit Runge-Kutta method, all stages have to be solved simultaneously.
+                // For an implicit Runge-Kutta method, the stages depend
+                // on each other. Therefore all stage equations are solved
+                // simultaneously as a fixed-point problem.
                 const auto mapping = [&](const Eigen::VectorXd& current_stage)
                 {
                     Eigen::VectorXd next_stage(stage_count);
 
-                    for (auto j = 0; j < stage_count; j++)
+                    for (auto j = 0; j < stage_count; ++j)
                     {
                         const auto stage_sum = beta.row(j).dot(current_stage);
 
-                        next_stage[j] = function(current_time + alpha[j] * tau, solution[i] + tau * stage_sum);
+                        next_stage[j] = derivative(current_time + alpha[j] * tau, solution[i] + tau * stage_sum);
                     }
 
                     return next_stage;
                 };
 
-                // we solve the coupled stage system by fixed-point iteration.
                 stage = nane::fixed_point(mapping, Eigen::VectorXd::Zero(stage_count));
             }
 
-            // then the update step.
+            // Combine all stage values according to gamma to advance
+            // the numerical solution by one time step.
             solution[i + 1] = solution[i] + tau * gamma.dot(stage);
         }
 
@@ -138,7 +154,8 @@ namespace nane
     /**
      * @ingroup ode
      *
-     * @brief Solves a vector-valued initial value problem using a Runge-Kutta method.
+     * @brief Solves a vector-valued initial value problem using a
+     * Runge-Kutta method.
      *
      * Approximates
      *
@@ -187,10 +204,9 @@ namespace nane
      * Each column of the returned matrix contains the numerical state at
      * one time-grid point.
      *
-     * @tparam Function Type of the right-hand-side function.
+     * @tparam Derivative Type of the right-hand-side system.
      *
-     * @param function Right-hand-side function.
-     * @param initial_value Initial state vector.
+     * @param problem Vector-valued initial value problem.
      * @param time_grid Time discretization.
      * @param alpha Runge-Kutta stage-time coefficients.
      * @param beta Runge-Kutta stage coefficients.
@@ -198,16 +214,21 @@ namespace nane
      *
      * @return Matrix whose columns contain the numerical states.
      */
-    template <typename Function>
-    [[nodiscard]] Eigen::MatrixXd runge_kutta(Function&& function, const Eigen::VectorXd& initial_value, const nane::uniform_grid<1>& time_grid,
+    template <typename Derivative>
+    [[nodiscard]] Eigen::MatrixXd runge_kutta(const nane::ivp<Derivative, Eigen::VectorXd>& problem, const nane::uniform_grid<1>& time_grid,
                                               const Eigen::VectorXd& alpha, const Eigen::MatrixXd& beta, const Eigen::VectorXd& gamma)
     {
         const double tolerance = 1e-12;
 
-        // we determine the stage count.
-        const int stage_count = (int)gamma.size();
+        // Extract the mathematical data of the IVP.
+        const auto& derivative = problem.derivative();
+        const auto& initial_value = problem.initial_value();
 
-        // checking the dimension match.
+        // The number of Runge-Kutta stages is determined by gamma.
+        const int stage_count = static_cast<int>(gamma.size());
+
+        // Check that the supplied Butcher coefficients have compatible
+        // dimensions.
         if (stage_count == 0)
             throw std::invalid_argument("Runge-Kutta method must have at least one stage.");
 
@@ -217,86 +238,94 @@ namespace nane
         if (beta.rows() != stage_count || beta.cols() != stage_count)
             throw std::invalid_argument("Runge-Kutta beta matrix must be square and match stage count.");
 
-        // we determine if the given butcher table would construct an explicit or implicit Runge-Kutta method.
+        // Determine whether the stage equations are explicit or coupled.
         const bool is_explicit = beta.isLowerTriangular(tolerance) && beta.diagonal().isZero(tolerance);
 
-        // determine the dimension of the state vector.
-        const auto dimension = initial_value.size();
+        // Dimension of the vector-valued state.
+        const Eigen::Index dimension = initial_value.size();
 
-        // create the stage matrix, where every column represents one stage vector.
+        // Every column contains one Runge-Kutta stage vector.
         Eigen::MatrixXd stage(dimension, stage_count);
 
-        // now the count of time steps and distance between time points.
+        // The grid is uniform, so the same step size is used everywhere.
         const std::size_t count = time_grid.count(0);
         const double tau = time_grid.spacing(0);
 
-        // we construct the solution matrix and give the initial value.
-        Eigen::MatrixXd solution(dimension, count);
+        // Every column of the solution matrix represents the state at one
+        // point of the time grid.
+        Eigen::MatrixXd solution(dimension, static_cast<Eigen::Index>(count));
+
         solution.col(0) = initial_value;
 
-        for (auto i = 0; i < (int)count - 1; i++)
+        for (auto i = 0; i < static_cast<int>(count) - 1; ++i)
         {
             const auto current_time = time_grid.axis(0)[i];
+
             const Eigen::VectorXd current_state = solution.col(i);
 
             if (is_explicit)
             {
-                // for an explicit Runge-Kutta method, every stage only depends on previously computed stages.
-                for (auto j = 0; j < stage_count; j++)
+                // In an explicit method, stage j depends only on the
+                // previously computed stages.
+                for (auto j = 0; j < stage_count; ++j)
                 {
                     Eigen::VectorXd stage_sum = Eigen::VectorXd::Zero(dimension);
 
                     if (j > 0)
+                    {
                         stage_sum = stage.leftCols(j) * beta.row(j).head(j).transpose();
+                    }
 
-                    stage.col(j) = function(current_time + alpha[j] * tau, current_state + tau * stage_sum);
+                    stage.col(j) = derivative(current_time + alpha[j] * tau, current_state + tau * stage_sum);
                 }
             }
             else
             {
-                // for a vector-valued implicit Runge-Kutta method, all stage vectors are coupled.
+                // For an implicit method, all stage vectors are coupled.
                 //
-                // the fixed-point solver operates on a single vector, therefore the stage
-                // vectors are stored consecutively:
+                // fixed_point operates on one Eigen::VectorXd, so the
+                // complete collection of stage vectors is flattened as
                 //
                 // [ k_0 ]
                 // [ k_1 ]
                 // [ ... ]
-                // [ k_s ]
+                // [ k_(s-1) ]
                 //
-                // giving a vector of dimension * stage_count entries.
-
+                // with dimension * stage_count total entries.
                 const auto mapping = [&](const Eigen::VectorXd& current_stage)
                 {
                     Eigen::VectorXd next_stage(dimension * stage_count);
 
-                    for (auto j = 0; j < stage_count; j++)
+                    for (auto j = 0; j < stage_count; ++j)
                     {
                         Eigen::VectorXd stage_sum = Eigen::VectorXd::Zero(dimension);
 
-                        for (auto l = 0; l < stage_count; l++)
+                        for (auto l = 0; l < stage_count; ++l)
                         {
                             stage_sum += beta(j, l) * current_stage.segment(l * dimension, dimension);
                         }
 
-                        next_stage.segment(j * dimension, dimension) = function(current_time + alpha[j] * tau, current_state + tau * stage_sum);
+                        next_stage.segment(j * dimension, dimension) = derivative(current_time + alpha[j] * tau, current_state + tau * stage_sum);
                     }
 
                     return next_stage;
                 };
 
-                // we solve the coupled stage system by fixed-point iteration.
+                // Start fixed-point iteration from zero stage vectors.
                 const Eigen::VectorXd initial_stage = Eigen::VectorXd::Zero(dimension * stage_count);
+
                 const Eigen::VectorXd fixed_stage = nane::fixed_point(mapping, initial_stage);
 
-                // copy the flattened fixed-point result back into the stage matrix.
-                for (auto j = 0; j < stage_count; j++)
+                // Restore the flattened fixed-point result to the stage
+                // matrix used by the Runge-Kutta update.
+                for (auto j = 0; j < stage_count; ++j)
                 {
                     stage.col(j) = fixed_stage.segment(j * dimension, dimension);
                 }
             }
 
-            // then the update step.
+            // Combine the stage vectors according to gamma to advance
+            // the numerical state by one time step.
             solution.col(i + 1) = current_state + tau * stage * gamma;
         }
 

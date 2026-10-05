@@ -1,17 +1,17 @@
 #pragma once
 
 #include "nane/geometry/uniform_grid.hpp"
+#include "nane/numerics/ode/ivp.hpp"
 #include "nane/numerics/ode/runge_kutta.hpp"
 
 #include <Eigen/Core>
-#include <utility>
 
 namespace nane
 {
     /**
      * @ingroup ode
      *
-     * @brief Solves a scalar initial value problem using implicit Euler.
+     * @brief Solves an initial value problem using implicit Euler.
      *
      * Approximates
      *
@@ -30,27 +30,38 @@ namespace nane
      * f(t_{n+1}, x_{n+1}).
      * @f]
      *
-     * The resulting implicit equation is solved through the Runge-Kutta
-     * formulation using fixed-point iteration for the stage equation.
+     * The resulting implicit stage equation is solved by the
+     * Runge-Kutta implementation using fixed-point iteration.
      *
-     * @tparam Function Type of the right-hand-side function.
+     * @tparam Derivative Type of the right-hand-side function.
+     * @tparam InitialValue Type of the initial value.
      *
-     * @param function Right-hand-side function @f$f(t,x)@f$.
-     * @param initial_value Initial value.
+     * @param problem Initial value problem containing the derivative and
+     * initial value.
      * @param time_grid Time discretization.
      *
      * @return Numerical solution at all time-grid points.
      */
-    template <typename Function>
-    [[nodiscard]] Eigen::VectorXd implicit_euler(Function&& function, double initial_value, const nane::uniform_grid<1>& time_grid)
+    template <typename Derivative, typename InitialValue>
+    [[nodiscard]] auto implicit_euler(const nane::ivp<Derivative, InitialValue>& problem, const nane::uniform_grid<1>& time_grid)
     {
-        // x(n+1) = x(n) + tau*f(t(n+1), x(n+1))
-        // x(n+1) = x(n) + tau*k
-        // k = f(t(n+1), x(n+1))
-        // k = f(t(n+1), x(n) + tau*k)
-
-        // Butcher table for implicit euler.
-        // alpha = [1], Beta = [1], gamma = [1]
+        // Implicit Euler satisfies
+        //
+        // x_(n+1) = x_n + tau * f(t_(n+1), x_(n+1)).
+        //
+        // Introducing one Runge-Kutta stage k gives
+        //
+        // k = f(t_n + tau, x_n + tau * k),
+        //
+        // followed by
+        //
+        // x_(n+1) = x_n + tau * k.
+        //
+        // Therefore its Butcher coefficients are:
+        //
+        // alpha = [1]
+        // beta  = [1]
+        // gamma = [1]
 
         Eigen::VectorXd alpha(1);
         alpha << 1.0;
@@ -61,68 +72,7 @@ namespace nane
         Eigen::VectorXd gamma(1);
         gamma << 1.0;
 
-        return nane::runge_kutta(std::forward<Function>(function), initial_value, time_grid, alpha, beta, gamma);
-    }
-
-    /**
-     * @ingroup ode
-     *
-     * @brief Solves a vector-valued initial value problem using implicit Euler.
-     *
-     * Approximates
-     *
-     * @f[
-     * \dot{\mathbf{x}}(t)
-     * =
-     * \mathbf{f}(t, \mathbf{x}(t))
-     * @f]
-     *
-     * using
-     *
-     * @f[
-     * \mathbf{x}_{n+1}
-     * =
-     * \mathbf{x}_n
-     * +
-     * \tau_n
-     * \mathbf{f}(t_{n+1}, \mathbf{x}_{n+1}).
-     * @f]
-     *
-     * The resulting implicit system is solved through the Runge-Kutta
-     * formulation using fixed-point iteration for the stage equation.
-     *
-     * Each column of the returned matrix contains the numerical state at
-     * one time-grid point.
-     *
-     * @tparam Function Type of the right-hand-side function.
-     *
-     * @param function Right-hand-side function.
-     * @param initial_value Initial state vector.
-     * @param time_grid Time discretization.
-     *
-     * @return Matrix whose columns contain the numerical states.
-     */
-    template <typename Function>
-    [[nodiscard]] Eigen::MatrixXd implicit_euler(Function&& function, const Eigen::VectorXd& initial_value, const nane::uniform_grid<1>& time_grid)
-    {
-        // x(n+1) = x(n) + tau*f(t(n+1), x(n+1))
-        // x(n+1) = x(n) + tau*k
-        // k = f(t(n+1), x(n+1))
-        // k = f(t(n+1), x(n) + tau*k)
-
-        // Butcher table for implicit euler.
-        // alpha = [1], Beta = [1], gamma = [1]
-
-        Eigen::VectorXd alpha(1);
-        alpha << 1.0;
-
-        Eigen::MatrixXd beta(1, 1);
-        beta << 1.0;
-
-        Eigen::VectorXd gamma(1);
-        gamma << 1.0;
-
-        return nane::runge_kutta(std::forward<Function>(function), initial_value, time_grid, alpha, beta, gamma);
+        return nane::runge_kutta(problem, time_grid, alpha, beta, gamma);
     }
 
 } // namespace nane

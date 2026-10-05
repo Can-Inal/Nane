@@ -9,10 +9,10 @@ int main()
     });
 
     const auto [t, x] = nane::symbols<2>();
-
     const auto derivative = nane::function(-t * t * x);
 
-    [[maybe_unused]] auto solution = nane::heun(derivative, 5.3, time_grid);
+    const auto problem = nane::ivp(derivative, 5.3);
+    [[maybe_unused]] auto solution = nane::heun(problem, time_grid);
 
     return 0;
 }
