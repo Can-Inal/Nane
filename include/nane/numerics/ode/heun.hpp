@@ -1,10 +1,9 @@
 #pragma once
 
 #include "nane/geometry/uniform_grid.hpp"
+#include "nane/numerics/ode/butcher_table.hpp"
 #include "nane/numerics/ode/ivp.hpp"
 #include "nane/numerics/ode/runge_kutta.hpp"
-
-#include <Eigen/Core>
 
 namespace nane
 {
@@ -65,19 +64,16 @@ namespace nane
         //
         // gamma = [1/2, 1/2]^T
 
-        Eigen::VectorXd alpha(2);
-        alpha << 0.0, 1.0;
+        static const nane::butcher_table table{
+            {0.0, 1.0},
+            {
+                {0.0, 0.0},
+                {1.0, 0.0},
+            },
+            {0.5, 0.5},
+        };
 
-        // clang-format off
-        Eigen::MatrixXd beta(2, 2);
-        beta << 0.0, 0.0,
-                1.0, 0.0;
-        // clang-format on
-
-        Eigen::VectorXd gamma(2);
-        gamma << 0.5, 0.5;
-
-        return nane::runge_kutta(problem, time_grid, alpha, beta, gamma);
+        return nane::runge_kutta(problem, time_grid, table);
     }
 
 } // namespace nane

@@ -1,10 +1,9 @@
 #pragma once
 
 #include "nane/geometry/uniform_grid.hpp"
+#include "nane/numerics/ode/butcher_table.hpp"
 #include "nane/numerics/ode/ivp.hpp"
 #include "nane/numerics/ode/runge_kutta.hpp"
-
-#include <Eigen/Core>
 
 namespace nane
 {
@@ -45,34 +44,21 @@ namespace nane
     template <typename Derivative, typename InitialValue>
     [[nodiscard]] auto implicit_euler(const nane::ivp<Derivative, InitialValue>& problem, const nane::uniform_grid<1>& time_grid)
     {
-        // Implicit Euler satisfies
-        //
-        // x_(n+1) = x_n + tau * f(t_(n+1), x_(n+1)).
-        //
-        // Introducing one Runge-Kutta stage k gives
-        //
-        // k = f(t_n + tau, x_n + tau * k),
-        //
-        // followed by
-        //
-        // x_(n+1) = x_n + tau * k.
-        //
-        // Therefore its Butcher coefficients are:
+        // Butcher coefficients for implicit Euler:
         //
         // alpha = [1]
         // beta  = [1]
         // gamma = [1]
 
-        Eigen::VectorXd alpha(1);
-        alpha << 1.0;
+        static const nane::butcher_table table{
+            {1.0},
+            {
+                {1.0},
+            },
+            {1.0},
+        };
 
-        Eigen::MatrixXd beta(1, 1);
-        beta << 1.0;
-
-        Eigen::VectorXd gamma(1);
-        gamma << 1.0;
-
-        return nane::runge_kutta(problem, time_grid, alpha, beta, gamma);
+        return nane::runge_kutta(problem, time_grid, table);
     }
 
 } // namespace nane
