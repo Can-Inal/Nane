@@ -64,7 +64,7 @@ const auto derivative = nane::system(
 Additional examples are available in the [`examples`](examples/) directory.
 
 ```bash
-cmake -S . -B build -G Ninja -DNANE_BUILD_EXAMPLES=ON
+cmake -S . -B build -DNANE_BUILD_EXAMPLES=ON
 cmake --build build --parallel
 ```
 
