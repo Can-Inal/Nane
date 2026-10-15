@@ -21,11 +21,7 @@ namespace nane
      * using the predictor
      *
      * @f[
-     * \tilde{x}_{n+1}
-     * =
-     * x_n
-     * +
-     * \tau_n f(t_n, x_n)
+     * \tilde{x}_{n+1} = x_n + \tau_n f(t_n, x_n)
      * @f]
      *
      * and the corrected update
@@ -41,6 +37,13 @@ namespace nane
      * +
      * f(t_{n+1}, \tilde{x}_{n+1})
      * \right).
+     * @f]
+     *
+     * The method is second-order accurate in time. For a sufficiently smooth
+     * solution, the global discretization error satisfies
+     *
+     * @f[
+     * O(\tau^2).
      * @f]
      *
      * @tparam Derivative Type of the right-hand-side function.

@@ -21,11 +21,14 @@ namespace nane
      * using
      *
      * @f[
-     * x_{n+1}
-     * =
-     * x_n
-     * +
-     * \tau_n f(t_n, x_n).
+     * x_{n+1} = x_n + \tau_n f(t_n, x_n).
+     * @f]
+     *
+     * The method is first-order accurate in time. For a sufficiently smooth
+     * solution, the global discretization error satisfies
+     *
+     * @f[
+     * O(\tau).
      * @f]
      *
      * @tparam Derivative Type of the right-hand-side function.

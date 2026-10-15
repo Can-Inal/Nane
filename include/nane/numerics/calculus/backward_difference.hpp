@@ -7,22 +7,16 @@ namespace nane
      *
      * @brief Approximates the first derivative using a backward difference.
      *
-     * Approximates the derivative of a scalar function
+     * Approximates the derivative of a scalar function using
      *
      * @f[
-     * f'(x)
+     * f'(x) \approx \frac{f(x) - f(x-h)}{h}.
      * @f]
      *
-     * using the backward finite-difference formula
+     * The approximation has first-order accuracy,
      *
      * @f[
-     * f'(x)
-     * \approx
-     * \frac{
-     * f(x) - f(x-h)
-     * }{
-     * h
-     * }.
+     * f'(x) = \frac{f(x) - f(x-h)}{h} + O(h).
      * @f]
      *
      * @tparam Function Type of the scalar function.

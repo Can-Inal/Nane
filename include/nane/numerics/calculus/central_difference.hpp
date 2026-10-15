@@ -7,22 +7,16 @@ namespace nane
      *
      * @brief Approximates the first derivative using a central difference.
      *
-     * Approximates the derivative of a scalar function
+     * Approximates the derivative of a scalar function using
      *
      * @f[
-     * f'(x)
+     * f'(x) \approx \frac{f(x+h) - f(x-h)}{2h}.
      * @f]
      *
-     * using the central finite-difference formula
+     * The approximation has second-order accuracy,
      *
      * @f[
-     * f'(x)
-     * \approx
-     * \frac{
-     * f(x+h) - f(x-h)
-     * }{
-     * 2h
-     * }.
+     * f'(x) = \frac{f(x+h) - f(x-h)}{2h} + O(h^2).
      * @f]
      *
      * @tparam Function Type of the scalar function.

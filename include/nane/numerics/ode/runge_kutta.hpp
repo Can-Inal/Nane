@@ -14,6 +14,9 @@ namespace nane
      *
      * @brief Solves a scalar initial value problem using a Runge-Kutta method.
      *
+     * The Runge-Kutta method is defined by the supplied Butcher table.
+     * The order of accuracy depends on the coefficients of the Butcher table.
+     *
      * @tparam Derivative Type of the right-hand-side function.
      *
      * @param problem Scalar initial value problem.
@@ -48,6 +51,9 @@ namespace nane
      *
      * @brief Solves a vector-valued initial value problem using a
      * Runge-Kutta method.
+     *
+     * The Runge-Kutta method is defined by the supplied Butcher table.
+     * The order of accuracy depends on the coefficients of the Butcher table.
      *
      * @tparam Derivative Type of the right-hand-side system.
      *
