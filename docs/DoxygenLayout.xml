@@ -27,7 +27,14 @@
                 visible="yes"
                 title="Nonlinear Solvers"
                 url="@ref nonlinear"
-            />
+	    />
+	    
+	    <tab
+		type="user"
+		visible="yes"
+		title="Calculus"
+		url="@ref calculus"
+	    />
         </tab>
 
         <tab

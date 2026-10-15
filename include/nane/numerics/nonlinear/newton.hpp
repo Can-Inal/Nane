@@ -1,5 +1,8 @@
 #pragma once
 
+#include "nane/numerics/calculus/central_difference.hpp"
+#include "nane/numerics/calculus/jacobian.hpp"
+
 #include <Eigen/Core>
 #include <Eigen/LU>
 #include <cmath>
@@ -32,7 +35,7 @@ namespace nane
      * }.
      * @f]
      *
-     * The derivative is approximated by the central difference
+     * The derivative is approximated using a central difference,
      *
      * @f[
      * f'(x)
@@ -89,22 +92,24 @@ namespace nane
         constexpr double step_size = 1e-6;
         auto current = initial_guess;
 
-        for (int i = 0; i < max_iteration; i++)
+        for (int i = 0; i < max_iteration; ++i)
         {
-            // x[n]
+            // function value at x[n].
             const auto value = function(current);
 
             if (std::abs(value) < tolerance)
                 return current;
 
-            // central difference: f'(n) = (f(n + h) - f(n - h)) / 2 * h
-            const auto derivative = (function(current + step_size) - function(current - step_size)) / (2 * step_size);
+            // central difference:
+            // f'(x) = (f(x + h) - f(x - h)) / (2h)
+            const auto derivative = nane::central_difference(function, current, step_size);
 
             if (std::abs(derivative) < tolerance)
                 throw std::runtime_error("Newton iteration encountered a near-zero derivative.");
 
-            // newton step: x[n + 1] = x[n] - (f(n)/f'(n))
-            const auto next = current - (value / derivative);
+            // Newton step:
+            // x[n + 1] = x[n] - f(x[n]) / f'(x[n])
+            const auto next = current - value / derivative;
 
             if (std::abs(next - current) < tolerance)
                 return next;
@@ -128,7 +133,7 @@ namespace nane
      * \mathbf{0}
      * @f]
      *
-     * by the Newton iteration
+     * by solving the Newton system
      *
      * @f[
      * J_{\mathbf{F}}
@@ -154,32 +159,7 @@ namespace nane
      * \Delta \mathbf{x}^{(m)}.
      * @f]
      *
-     * The Jacobian is approximated column-wise using central differences,
-     *
-     * @f[
-     * \frac{
-     * \partial \mathbf{F}
-     * }{
-     * \partial x_j
-     * }
-     * \approx
-     * \frac{
-     * \mathbf{F}
-     * \left(
-     * \mathbf{x} + h\mathbf{e}_j
-     * \right)
-     * -
-     * \mathbf{F}
-     * \left(
-     * \mathbf{x} - h\mathbf{e}_j
-     * \right)
-     * }{
-     * 2h
-     * },
-     * @f]
-     *
-     * where @f$\mathbf{e}_j@f$ is the @f$j@f$-th Cartesian basis vector
-     * and @f$h@f$ is a small finite-difference step.
+     * The Jacobian is approximated using central differences.
      *
      * The iteration is considered converged when either
      *
@@ -224,30 +204,24 @@ namespace nane
         constexpr double step_size = 1e-6;
         Eigen::VectorXd current = initial_guess;
 
-        for (int i = 0; i < max_iteration; i++)
+        for (int i = 0; i < max_iteration; ++i)
         {
-            // x[n]
+            // function value at x[n].
             const Eigen::VectorXd value = function(current);
 
             if (value.norm() < tolerance)
                 return current;
 
-            // Building the jacobi matrix.
-            Eigen::MatrixXd jacobian(value.size(), current.size());
+            // build the Jacobian matrix using central differences.
+            const Eigen::MatrixXd jacobian = nane::jacobian(function, current, step_size);
 
-            for (Eigen::Index j = 0; j < current.size(); ++j)
-            {
-                Eigen::VectorXd plus = current;
-                Eigen::VectorXd minus = current;
-
-                plus[j] += step_size;
-                minus[j] -= step_size;
-
-                // central difference: f'(n) = (f(n + h) - f(n - h)) / 2 * h
-                jacobian.col(j) = (function(plus) - function(minus)) / (2.0 * step_size);
-            }
-
-            // newton step: x[n + 1] = x[n] - (f(n)/f'(n))
+            // Newton step:
+            //
+            // J(x[n]) * delta = -F(x[n])
+            //
+            // solve for delta and update
+            //
+            // x[n + 1] = x[n] + delta
             const Eigen::VectorXd delta = jacobian.partialPivLu().solve(-value);
             const Eigen::VectorXd next = current + delta;
 

@@ -10,4 +10,7 @@
 
 @defgroup nonlinear Nonlinear Solvers
 @brief Numerical methods for nonlinear equations.
+
+@defgroup calculus Calculus 
+@brief Numerical methods for calculus.
 */
