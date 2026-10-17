@@ -191,6 +191,13 @@ if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
     include(CTest)
 
     if(BUILD_TESTING)
+        add_subdirectory(vendor/catch2)
+
+        list(
+            APPEND CMAKE_MODULE_PATH
+            "${CMAKE_CURRENT_SOURCE_DIR}/vendor/catch2/extras"
+        )
+
         add_subdirectory(tests)
     endif()
 endif()

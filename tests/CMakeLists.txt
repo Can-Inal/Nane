@@ -1,20 +1,12 @@
-# ------------------------------------------------------------------------------
-# Catch2
-# ------------------------------------------------------------------------------
-
-add_subdirectory(
-    "${PROJECT_SOURCE_DIR}/vendor/catch2"
-    "${CMAKE_BINARY_DIR}/vendor/catch2"
-    EXCLUDE_FROM_ALL
+file(
+    GLOB_RECURSE NANE_TEST_SOURCES
+    CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
 )
-
-# ------------------------------------------------------------------------------
-# Tests
-# ------------------------------------------------------------------------------
 
 add_executable(
     nane_tests
-    ode.cpp
+    ${NANE_TEST_SOURCES}
 )
 
 target_link_libraries(
@@ -22,39 +14,6 @@ target_link_libraries(
     PRIVATE
         nane::nane
         Catch2::Catch2WithMain
-)
-
-# ------------------------------------------------------------------------------
-# Compiler warnings
-# ------------------------------------------------------------------------------
-
-if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
-    target_compile_options(
-        nane_tests
-        PRIVATE
-            -Wall
-            -Wextra
-            -Wpedantic
-            -Wconversion
-            -Wsign-conversion
-    )
-elseif(MSVC)
-    target_compile_options(
-        nane_tests
-        PRIVATE
-            /W4
-            /permissive-
-    )
-endif()
-
-# ------------------------------------------------------------------------------
-# CTest
-# ------------------------------------------------------------------------------
-
-list(
-    APPEND
-    CMAKE_MODULE_PATH
-    "${PROJECT_SOURCE_DIR}/vendor/catch2/extras"
 )
 
 include(Catch)

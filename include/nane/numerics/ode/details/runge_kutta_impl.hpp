@@ -151,7 +151,13 @@ namespace nane
                     // therefore we use
                     //
                     // residual(K) = K - mapping(K).
-                    const auto residual = [&](const Eigen::VectorXd& current_stage) { return current_stage - mapping(current_stage); };
+
+                    // clang-format off
+                    const auto residual = [&](const Eigen::VectorXd& current_stage) -> Eigen::VectorXd
+                    { 
+			return current_stage - mapping(current_stage); 
+		    };
+                    // clang-format on
 
                     // uses Newton's method to solve all implicit stage vectors simultaneously.
                     // the initial guess is a zero vector containing all flattened stages.
