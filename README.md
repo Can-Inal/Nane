@@ -34,15 +34,15 @@ A scalar initial value problem can be written directly as a symbolic expression:
 
 int main()
 {
-    nane::uniform_grid<1> time_grid({
+    nane::geometry::uniform_grid<1> time_grid({
         {0.0, 2.0, 101},
     });
 
     const auto [t, x] = nane::symbols<2>();
     const auto derivative = nane::function(-t * t * x);
 
-    const auto problem = nane::ivp(derivative, 5.3);
-    auto solution = nane::heun(problem, time_grid);
+    const auto problem = nane::ode::ivp(derivative, 5.3);
+    [[maybe_unused]] auto solution = nane::ode::heun(problem, time_grid);
 
     return 0;
 }
