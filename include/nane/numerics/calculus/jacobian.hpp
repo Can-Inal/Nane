@@ -2,7 +2,7 @@
 
 #include <Eigen/Core>
 
-namespace nane
+namespace nane::calculus
 {
     /**
      * Each column is approximated using a central difference,
@@ -44,4 +44,4 @@ namespace nane
         return result;
     }
 
-} // namespace nane
+} // namespace nane::calculus

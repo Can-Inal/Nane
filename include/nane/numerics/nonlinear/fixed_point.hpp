@@ -4,7 +4,7 @@
 #include <cmath>
 #include <stdexcept>
 
-namespace nane
+namespace nane::nonlinear
 {
     /**
      * @ingroup nonlinear
@@ -133,4 +133,4 @@ namespace nane
         throw std::runtime_error("fixed-point iteration did not converge.");
     }
 
-} // namespace nane
+} // namespace nane::nonlinear

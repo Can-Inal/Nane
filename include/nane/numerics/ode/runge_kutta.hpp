@@ -7,7 +7,7 @@
 
 #include <Eigen/Core>
 
-namespace nane
+namespace nane::ode
 {
     /**
      * @ingroup ode
@@ -26,8 +26,8 @@ namespace nane
      * @return Numerical solution at all time-grid points.
      */
     template <typename Derivative>
-    [[nodiscard]] Eigen::VectorXd runge_kutta(const nane::ivp<Derivative, double>& problem, const nane::uniform_grid<1>& time_grid,
-                                              const nane::butcher_table& table)
+    [[nodiscard]] Eigen::VectorXd runge_kutta(const nane::ode::ivp<Derivative, double>& problem, const nane::geometry::uniform_grid<1>& time_grid,
+                                              const nane::ode::butcher_table& table)
     {
         Eigen::VectorXd initial_value(1);
         initial_value[0] = problem.initial_value();
@@ -41,7 +41,7 @@ namespace nane
             return value;
         };
 
-        const Eigen::MatrixXd solution = nane::detail::runge_kutta_impl(derivative, initial_value, time_grid, table);
+        const Eigen::MatrixXd solution = nane::ode::detail::runge_kutta_impl(derivative, initial_value, time_grid, table);
 
         return solution.row(0).transpose();
     }
@@ -64,10 +64,10 @@ namespace nane
      * @return Matrix whose columns contain the numerical states.
      */
     template <typename Derivative>
-    [[nodiscard]] Eigen::MatrixXd runge_kutta(const nane::ivp<Derivative, Eigen::VectorXd>& problem, const nane::uniform_grid<1>& time_grid,
-                                              const nane::butcher_table& table)
+    [[nodiscard]] Eigen::MatrixXd runge_kutta(const nane::ode::ivp<Derivative, Eigen::VectorXd>& problem,
+                                              const nane::geometry::uniform_grid<1>& time_grid, const nane::ode::butcher_table& table)
     {
-        return nane::detail::runge_kutta_impl(problem.derivative(), problem.initial_value(), time_grid, table);
+        return nane::ode::detail::runge_kutta_impl(problem.derivative(), problem.initial_value(), time_grid, table);
     }
 
-} // namespace nane
+} // namespace nane::ode

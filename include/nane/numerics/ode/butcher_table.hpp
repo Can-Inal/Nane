@@ -4,7 +4,7 @@
 #include <initializer_list>
 #include <stdexcept>
 
-namespace nane
+namespace nane::ode
 {
 
     /**
@@ -201,4 +201,4 @@ namespace nane
         Eigen::VectorXd gamma_;
     };
 
-} // namespace nane
+} // namespace nane::ode

@@ -5,7 +5,7 @@
 
 int main()
 {
-    nane::uniform_grid<1> time_grid({
+    nane::geometry::uniform_grid<1> time_grid({
         {0.0, 10.0, 1001},
     });
 
@@ -15,8 +15,8 @@ int main()
     Eigen::VectorXd initial_value(2);
     initial_value << 1.0, 0.0;
 
-    const auto problem = nane::ivp(derivative, initial_value);
-    [[maybe_unused]] auto solution = nane::heun(problem, time_grid);
+    const auto problem = nane::ode::ivp(derivative, initial_value);
+    [[maybe_unused]] auto solution = nane::ode::heun(problem, time_grid);
 
     return 0;
 }

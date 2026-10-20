@@ -20,13 +20,13 @@ namespace
     {
         // x' = -x
         const auto derivative = [](double time, double value) { return -value; };
-        const auto problem = nane::ivp(derivative, 1.0);
+        const auto problem = nane::ode::ivp(derivative, 1.0);
 
-        nane::uniform_grid<1> coarse_grid({
+        nane::geometry::uniform_grid<1> coarse_grid({
             {0.0, 1.0, coarse_count},
         });
 
-        nane::uniform_grid<1> fine_grid({
+        nane::geometry::uniform_grid<1> fine_grid({
             {0.0, 1.0, fine_count},
         });
 
@@ -51,8 +51,15 @@ namespace
 
 TEST_CASE("Explicit Euler has first-order convergence", "[ode][explicit_euler][convergence]")
 {
-    const double order =
-        observed_convergence_order([](const auto& problem, const auto& time_grid) { return nane::explicit_euler(problem, time_grid); }, 11, 21);
+    // clang-format off
+    const double order = observed_convergence_order(
+	    [](const auto& problem, const auto& time_grid) 
+	    { 
+		return nane::ode::explicit_euler(problem, time_grid); 
+	    },
+	    11, 21
+	);
+    // clang-format on
 
     REQUIRE(order == Catch::Approx(1.0).margin(0.1));
 }
@@ -63,7 +70,7 @@ TEST_CASE("Implicit Euler has first-order convergence", "[ode][implicit_euler][c
     const double order = observed_convergence_order(
 	    [](const auto& problem, const auto& time_grid) 
 	    { 
-		return nane::implicit_euler(problem, time_grid); 
+		return nane::ode::implicit_euler(problem, time_grid); 
 	    }, 
 	    11, 21
 	);
@@ -78,7 +85,7 @@ TEST_CASE("Heun has second-order convergence", "[ode][heun][convergence]")
     const double order = observed_convergence_order(
 	    [](const auto& problem, const auto& time_grid) 
 	    { 
-		return nane::heun(problem, time_grid); 
+		return nane::ode::heun(problem, time_grid); 
 	    }, 
 	    11, 21
 	);
@@ -93,7 +100,7 @@ TEST_CASE("Modified Euler has second-order convergence", "[ode][modified_euler][
     const double order = observed_convergence_order(
 	    [](const auto& problem, const auto& time_grid) 
 	    { 
-		return nane::modified_euler(problem, time_grid); 
+		return nane::ode::modified_euler(problem, time_grid); 
 	    }, 
 	    11, 21
 	);
@@ -108,7 +115,7 @@ TEST_CASE("Implicit midpoint has second-order convergence", "[ode][implicit_midp
     const double order = observed_convergence_order(
 	    [](const auto& problem, const auto& time_grid) 
 	    { 
-		return nane::implicit_midpoint(problem, time_grid); 
+		return nane::ode::implicit_midpoint(problem, time_grid); 
 	    }, 
 	    11, 21
 	);
@@ -123,7 +130,7 @@ TEST_CASE("Crank-Nicolson has second-order convergence", "[ode][crank_nicolson][
     const double order = observed_convergence_order(
 	    [](const auto& problem, const auto& time_grid)
 	    { 
-		return nane::crank_nicolson(problem, time_grid); 
+		return nane::ode::crank_nicolson(problem, time_grid); 
 	    }, 
 	    11, 21
 	);
@@ -138,7 +145,7 @@ TEST_CASE("RK4 has fourth-order convergence", "[ode][rk4][convergence]")
     const double order = observed_convergence_order(
 	    [](const auto& problem, const auto& time_grid) 
 	    { 
-		return nane::rk4(problem, time_grid); 
+		return nane::ode::rk4(problem, time_grid); 
 	    }, 
 	    11, 21
 	);

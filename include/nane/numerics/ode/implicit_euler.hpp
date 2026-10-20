@@ -5,7 +5,7 @@
 #include "nane/numerics/ode/ivp.hpp"
 #include "nane/numerics/ode/runge_kutta.hpp"
 
-namespace nane
+namespace nane::ode
 {
     /**
      * @ingroup ode
@@ -44,7 +44,7 @@ namespace nane
      * @return Numerical solution at all time-grid points.
      */
     template <typename Derivative, typename InitialValue>
-    [[nodiscard]] auto implicit_euler(const nane::ivp<Derivative, InitialValue>& problem, const nane::uniform_grid<1>& time_grid)
+    [[nodiscard]] auto implicit_euler(const nane::ode::ivp<Derivative, InitialValue>& problem, const nane::geometry::uniform_grid<1>& time_grid)
     {
         // Butcher coefficients for implicit Euler:
         //
@@ -52,7 +52,7 @@ namespace nane
         // beta  = [1]
         // gamma = [1]
 
-        static const nane::butcher_table table{
+        static const nane::ode::butcher_table table{
             {1.0},
             {
                 {1.0},
@@ -60,7 +60,7 @@ namespace nane
             {1.0},
         };
 
-        return nane::runge_kutta(problem, time_grid, table);
+        return nane::ode::runge_kutta(problem, time_grid, table);
     }
 
-} // namespace nane
+} // namespace nane::ode

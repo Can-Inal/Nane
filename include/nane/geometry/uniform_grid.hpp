@@ -6,7 +6,7 @@
 #include <initializer_list>
 #include <stdexcept>
 
-namespace nane
+namespace nane::geometry
 {
     /**
      *	@ingroup geometry
@@ -214,4 +214,4 @@ namespace nane
         std::array<uniform_axis, Dimensions> axes_;
         std::array<Eigen::ArrayXd, Dimensions> coordinates_;
     };
-} // namespace nane
+} // namespace nane::geometry

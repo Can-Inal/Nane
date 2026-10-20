@@ -1,6 +1,6 @@
 #pragma once
 
-namespace nane
+namespace nane::calculus
 {
     /**
      * @ingroup calculus
@@ -33,4 +33,4 @@ namespace nane
         return (function(current + step_size) - function(current - step_size)) / (2.0 * step_size);
     }
 
-} // namespace nane
+} // namespace nane::calculus

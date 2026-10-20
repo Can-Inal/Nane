@@ -2,7 +2,7 @@
 
 #include <utility>
 
-namespace nane
+namespace nane::ode
 {
     /**
      * @ingroup ode
@@ -71,4 +71,4 @@ namespace nane
         InitialValue initial_value_;
     };
 
-} // namespace nane
+} // namespace nane::ode

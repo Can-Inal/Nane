@@ -8,7 +8,7 @@
 #include <cmath>
 #include <stdexcept>
 
-namespace nane
+namespace nane::nonlinear
 {
     /**
      * @ingroup nonlinear
@@ -102,7 +102,7 @@ namespace nane
 
             // central difference:
             // f'(x) = (f(x + h) - f(x - h)) / (2h)
-            const auto derivative = nane::central_difference(function, current, step_size);
+            const auto derivative = nane::calculus::central_difference(function, current, step_size);
 
             if (std::abs(derivative) < tolerance)
                 throw std::runtime_error("Newton iteration encountered a near-zero derivative.");
@@ -213,7 +213,7 @@ namespace nane
                 return current;
 
             // build the Jacobian matrix using central differences.
-            const Eigen::MatrixXd jacobian = nane::jacobian(function, current, step_size);
+            const Eigen::MatrixXd jacobian = nane::calculus::jacobian(function, current, step_size);
 
             // Newton step:
             //
@@ -234,4 +234,4 @@ namespace nane
         throw std::runtime_error("Newton iteration did not converge.");
     }
 
-} // namespace nane
+} // namespace nane::nonlinear

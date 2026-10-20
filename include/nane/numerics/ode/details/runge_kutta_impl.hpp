@@ -7,7 +7,7 @@
 #include <Eigen/Core>
 #include <cstddef>
 
-namespace nane
+namespace nane::ode
 {
     namespace detail
     {
@@ -29,7 +29,7 @@ namespace nane
          */
         template <typename Derivative>
         [[nodiscard]] Eigen::MatrixXd runge_kutta_impl(const Derivative& derivative, const Eigen::VectorXd& initial_value,
-                                                       const nane::uniform_grid<1>& time_grid, const nane::butcher_table& table)
+                                                       const nane::geometry::uniform_grid<1>& time_grid, const nane::ode::butcher_table& table)
         {
             const auto& alpha = table.alpha();
             const auto& beta = table.beta();
@@ -161,7 +161,7 @@ namespace nane
 
                     // uses Newton's method to solve all implicit stage vectors simultaneously.
                     // the initial guess is a zero vector containing all flattened stages.
-                    const Eigen::VectorXd solved_stage = nane::newton(residual, Eigen::VectorXd::Zero(dimension * stage_count));
+                    const Eigen::VectorXd solved_stage = nane::nonlinear::newton(residual, Eigen::VectorXd::Zero(dimension * stage_count));
 
                     // unpack the flattened stage vector back into the stage matrix.
                     // every segment becomes one column of the stage matrix.
@@ -185,4 +185,4 @@ namespace nane
         }
 
     } // namespace detail
-} // namespace nane
+} // namespace nane::ode
