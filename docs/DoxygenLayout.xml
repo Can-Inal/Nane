@@ -14,46 +14,5 @@
 	    title="API Reference"
 	/>
 
-        <tab
-            type="usergroup"
-            visible="yes"
-            title="Numerics"
-            url="[none]"
-        >
-            <tab
-                type="user"
-                visible="yes"
-                title="Ordinary Differential Equations"
-                url="@ref ode"
-            />
-
-            <tab
-                type="user"
-                visible="yes"
-                title="Nonlinear Solvers"
-                url="@ref nonlinear"
-            />
-
-            <tab
-                type="user"
-                visible="yes"
-                title="Calculus"
-                url="@ref calculus"
-            />
-        </tab>
-
-        <tab
-            type="usergroup"
-            visible="yes"
-            title="Geometry"
-            url="[none]"
-        >
-            <tab
-                type="user"
-                visible="yes"
-                title="Computational Grids"
-                url="@ref geometry"
-            />
-        </tab>
     </navindex>
 </doxygenlayout>
