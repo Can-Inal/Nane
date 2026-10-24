@@ -4,9 +4,8 @@
 
 PROJECT_NAME           = "Nane"
 PROJECT_BRIEF          = "A modern C++23 scientific computing library"
-PROJECT_LOGO	       = docs/assets/nane-mark.png
-IMAGE_PATH   	       = docs/assets
-
+PROJECT_LOGO           = docs/assets/nane_mark.png
+IMAGE_PATH             = docs/assets
 OUTPUT_DIRECTORY       = build/docs
 
 # -----------------------------------------------------------------------------

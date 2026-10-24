@@ -1,3 +1,9 @@
+.nane-links {
+    margin-top: 2rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
 #main-nav>ul>li {
     margin-right: 1rem;
 }

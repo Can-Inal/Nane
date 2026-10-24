@@ -1,7 +1,7 @@
 /**
 @mainpage notitle
 
-@image html nane-logo.png "" width=280px
+@image html nane_logo.png "" width=320px
 
 <strong>A modern C++23 scientific computing library.</strong>
 
@@ -16,5 +16,13 @@ and minimal abstraction around the underlying mathematics.
 
 The library is intended both for scientific computing and for studying how
 numerical methods are implemented.
+
+<div class="nane-links">
+
+[API Reference](modules.html) ·
+[Examples](https://github.com/Can-Inal/Nane/tree/main/examples) ·
+[GitHub](https://github.com/Can-Inal/Nane)
+
+</div>
 
 */
