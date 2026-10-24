@@ -1,16 +1,16 @@
 #pragma once
 
 #include "nane/geometry/uniform_grid.hpp"
-#include "nane/numerics/ode/butcher_table.hpp"
 #include "nane/numerics/ode/ivp.hpp"
-#include "nane/numerics/ode/runge_kutta.hpp"
+#include "nane/numerics/ode/runge_kutta/butcher_table.hpp"
+#include "nane/numerics/ode/runge_kutta/runge_kutta.hpp"
 
 namespace nane::ode
 {
     /**
      * @ingroup ode
      *
-     * @brief Solves an initial value problem using the implicit midpoint method.
+     * @brief Solves an initial value problem using implicit Euler.
      *
      * Approximates
      *
@@ -21,25 +21,17 @@ namespace nane::ode
      * using
      *
      * @f[
-     * x_{n+1}
-     * =
-     * x_n
-     * +
-     * \tau_n
-     * f\left(
-     * t_n + \frac{\tau_n}{2},
-     * \frac{x_n + x_{n+1}}{2}
-     * \right).
+     * x_{n+1} = x_n + \tau_n f(t_{n+1}, x_{n+1}).
      * @f]
      *
      * The resulting implicit stage equation is solved by the
      * Runge-Kutta implementation using Newton's method.
      *
-     * The method is second-order accurate in time. For a sufficiently smooth
+     * The method is first-order accurate in time. For a sufficiently smooth
      * solution, the global discretization error satisfies
      *
      * @f[
-     * O(\tau^2).
+     * O(\tau).
      * @f]
      *
      * @tparam Derivative Type of the right-hand-side function.
@@ -52,18 +44,18 @@ namespace nane::ode
      * @return Numerical solution at all time-grid points.
      */
     template <typename Derivative, typename InitialValue>
-    [[nodiscard]] auto implicit_midpoint(const nane::ode::ivp<Derivative, InitialValue>& problem, const nane::geometry::uniform_grid<1>& time_grid)
+    [[nodiscard]] auto implicit_euler(const nane::ode::ivp<Derivative, InitialValue>& problem, const nane::geometry::uniform_grid<1>& time_grid)
     {
-        // Butcher coefficients for implicit midpoint:
+        // Butcher coefficients for implicit Euler:
         //
-        // alpha = [1/2]
-        // beta  = [1/2]
+        // alpha = [1]
+        // beta  = [1]
         // gamma = [1]
 
         static const nane::ode::butcher_table table{
-            {0.5},
+            {1.0},
             {
-                {0.5},
+                {1.0},
             },
             {1.0},
         };

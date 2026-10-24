@@ -1,9 +1,9 @@
 #pragma once
 
 #include "nane/geometry/uniform_grid.hpp"
-#include "nane/numerics/ode/butcher_table.hpp"
 #include "nane/numerics/ode/ivp.hpp"
-#include "nane/numerics/ode/runge_kutta.hpp"
+#include "nane/numerics/ode/runge_kutta/butcher_table.hpp"
+#include "nane/numerics/ode/runge_kutta/runge_kutta.hpp"
 
 namespace nane::ode
 {

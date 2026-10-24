@@ -1,17 +1,11 @@
+#include "nane/geometry/uniform_grid.hpp"
+#include "nane/numerics/ode/one_step.hpp"
+
 #include <Eigen/Core>
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include <cmath>
 #include <cstddef>
-#include <nane/geometry/uniform_grid.hpp>
-#include <nane/numerics/ode/crank_nicolson.hpp>
-#include <nane/numerics/ode/explicit_euler.hpp>
-#include <nane/numerics/ode/heun.hpp>
-#include <nane/numerics/ode/implicit_euler.hpp>
-#include <nane/numerics/ode/implicit_midpoint.hpp>
-#include <nane/numerics/ode/ivp.hpp>
-#include <nane/numerics/ode/modified_euler.hpp>
-#include <nane/numerics/ode/rk4.hpp>
 
 namespace
 {

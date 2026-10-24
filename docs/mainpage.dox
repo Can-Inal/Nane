@@ -3,46 +3,16 @@
 
 <strong>A modern C++23 scientific computing library.</strong>
 
-Nane provides small and composable tools for numerical computing while
-using Eigen directly for vectors and matrices.
-
-## Example
-
-Consider the initial value problem
-
-@f[
-\dot{x}(t) = -t^2x(t),
-\qquad
-x(0) = 5.3.
-@f]
-
-It can be expressed symbolically and solved with Heun's method:
-
-@code{.cpp}
-#include <nane/geometry/uniform_grid.hpp>
-#include <nane/numerics/ode/one_step.hpp>
-#include <nane/symbolic.hpp>
-
-int main()
-{
-    nane::geometry::uniform_grid<1> time_grid({
-        {0.0, 2.0, 101},
-    });
-
-    const auto [t, x] = nane::symbols<2>();
-    const auto derivative = nane::function(-t * t * x);
-
-    const auto problem = nane::ode::ivp(derivative, 5.3);
-    [[maybe_unused]] auto solution = nane::ode::heun(problem, time_grid);
-
-    return 0;
-}
-@endcode
+Nane is focused on clear and practical implementations of numerical methods.
+The goal is to keep algorithms close to their mathematical definitions while
+providing simple and composable interfaces.
 
 ## Design
 
-Numerical algorithms are provided as small, composable free functions.
-Lightweight symbolic expressions provide a concise way to define functions
-and coupled systems while remaining directly callable by numerical algorithms.
+Nane favors small, readable implementations, transparent numerical behavior,
+and minimal abstraction around the underlying mathematics.
+
+The library is intended both for scientific computing and for studying how
+numerical methods are implemented.
 
 */

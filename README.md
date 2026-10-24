@@ -14,59 +14,20 @@
     </a>
 </p>
 
-Nane is a modern C++23 scientific computing library focused on numerical
-methods, ordinary differential equations, nonlinear solvers, computational
-grids, and lightweight symbolic expressions.
+Nane is a modern C++23 scientific computing library for building and exploring numerical algorithms with a clean and direct interface.
 
-Nane uses Eigen directly for vector and matrix representations and provides
-small, composable interfaces for numerical algorithms.
+It is designed to keep numerical code understandable, lightweight, and easy to extend.
 
 > **Nane is currently under active development.**
 
-## Example
-
-A scalar initial value problem can be written directly as a symbolic expression:
-
-```cpp
-#include <nane/geometry/uniform_grid.hpp>
-#include <nane/numerics/ode/one_step.hpp>
-#include <nane/symbolic.hpp>
-
-int main()
-{
-    nane::geometry::uniform_grid<1> time_grid({
-        {0.0, 2.0, 101},
-    });
-
-    const auto [t, x] = nane::symbols<2>();
-    const auto derivative = nane::function(-t * t * x);
-
-    const auto problem = nane::ode::ivp(derivative, 5.3);
-    [[maybe_unused]] auto solution = nane::ode::heun(problem, time_grid);
-
-    return 0;
-}
-```
-
-Symbolic expressions can also describe coupled vector-valued systems:
-
-```cpp
-const auto [t, x] = nane::symbols<2>();
-
-const auto derivative = nane::system(
-    x[1],
-    -nane::sin(x[0]) - 0.1 * x[1]
-);
-```
-
-## Examples
-
-Additional examples are available in the [`examples`](examples/) directory.
+## Build
 
 ```bash
 cmake -S . -B build -DNANE_BUILD_EXAMPLES=ON
 cmake --build build --parallel
 ```
+
+Examples are available in the [`examples`](examples/) directory.
 
 ## Documentation
 

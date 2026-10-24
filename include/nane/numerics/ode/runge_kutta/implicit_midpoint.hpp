@@ -1,16 +1,16 @@
 #pragma once
 
 #include "nane/geometry/uniform_grid.hpp"
-#include "nane/numerics/ode/butcher_table.hpp"
 #include "nane/numerics/ode/ivp.hpp"
-#include "nane/numerics/ode/runge_kutta.hpp"
+#include "nane/numerics/ode/runge_kutta/butcher_table.hpp"
+#include "nane/numerics/ode/runge_kutta/runge_kutta.hpp"
 
 namespace nane::ode
 {
     /**
      * @ingroup ode
      *
-     * @brief Solves an initial value problem using modified Euler.
+     * @brief Solves an initial value problem using the implicit midpoint method.
      *
      * Approximates
      *
@@ -18,17 +18,7 @@ namespace nane::ode
      * \dot{x}(t) = f(t, x(t))
      * @f]
      *
-     * using the midpoint predictor
-     *
-     * @f[
-     * \tilde{x}_{n+\frac{1}{2}}
-     * =
-     * x_n
-     * +
-     * \frac{\tau_n}{2} f(t_n, x_n)
-     * @f]
-     *
-     * and the update
+     * using
      *
      * @f[
      * x_{n+1}
@@ -38,9 +28,12 @@ namespace nane::ode
      * \tau_n
      * f\left(
      * t_n + \frac{\tau_n}{2},
-     * \tilde{x}_{n+\frac{1}{2}}
+     * \frac{x_n + x_{n+1}}{2}
      * \right).
      * @f]
+     *
+     * The resulting implicit stage equation is solved by the
+     * Runge-Kutta implementation using Newton's method.
      *
      * The method is second-order accurate in time. For a sufficiently smooth
      * solution, the global discretization error satisfies
@@ -59,24 +52,20 @@ namespace nane::ode
      * @return Numerical solution at all time-grid points.
      */
     template <typename Derivative, typename InitialValue>
-    [[nodiscard]] auto modified_euler(const nane::ode::ivp<Derivative, InitialValue>& problem, const nane::geometry::uniform_grid<1>& time_grid)
+    [[nodiscard]] auto implicit_midpoint(const nane::ode::ivp<Derivative, InitialValue>& problem, const nane::geometry::uniform_grid<1>& time_grid)
     {
-        // Butcher coefficients for modified Euler:
+        // Butcher coefficients for implicit midpoint:
         //
-        // alpha = [0, 1/2]^T
-        //
-        //        [0   0]
-        // beta = [1/2 0]
-        //
-        // gamma = [0, 1]^T
+        // alpha = [1/2]
+        // beta  = [1/2]
+        // gamma = [1]
 
         static const nane::ode::butcher_table table{
-            {0.0, 0.5},
+            {0.5},
             {
-                {0.0, 0.0},
-                {0.5, 0.0},
+                {0.5},
             },
-            {0.0, 1.0},
+            {1.0},
         };
 
         return nane::ode::runge_kutta(problem, time_grid, table);

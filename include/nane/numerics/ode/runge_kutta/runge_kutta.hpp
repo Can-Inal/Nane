@@ -1,9 +1,9 @@
 #pragma once
 
 #include "nane/geometry/uniform_grid.hpp"
-#include "nane/numerics/ode/butcher_table.hpp"
-#include "nane/numerics/ode/details/runge_kutta_impl.hpp"
 #include "nane/numerics/ode/ivp.hpp"
+#include "nane/numerics/ode/runge_kutta/butcher_table.hpp"
+#include "nane/numerics/ode/runge_kutta/details/runge_kutta_impl.hpp"
 
 #include <Eigen/Core>
 

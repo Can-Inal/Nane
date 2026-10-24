@@ -2,7 +2,7 @@
 
 #include "nane/geometry/uniform_grid.hpp"
 #include "nane/numerics/nonlinear/newton.hpp"
-#include "nane/numerics/ode/butcher_table.hpp"
+#include "nane/numerics/ode/runge_kutta/butcher_table.hpp"
 
 #include <Eigen/Core>
 #include <cstddef>
