@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="docs/assets/nane-logo.png" alt="Nane" width="280">
+    <img src="docs/assets/nane_logo.png" alt="Nane" width="280">
 </p>
 
 <p align="center">
