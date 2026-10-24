@@ -1,16 +1,20 @@
 /**
-@defgroup core Core
-@brief Core types and utilities used throughout Nane.
+ * @defgroup calculus Calculus
+ * @brief Numerical differentiation and related algorithms.
+ */
 
-@defgroup geometry Computational Grids
-@brief Computational grid types and utilities.
+/**
+ * @defgroup geometry Geometry
+ * @brief Geometric and grid-related utilities.
+ */
 
-@defgroup ode Ordinary Differential Equations
-@brief Numerical methods for ordinary differential equations.
+/**
+ * @defgroup nonlinear Nonlinear
+ * @brief Numerical methods for nonlinear problems.
+ */
 
-@defgroup nonlinear Nonlinear Solvers
-@brief Numerical methods for nonlinear equations.
+/**
+ * @defgroup ode Ordinary Differential Equations
+ * @brief Numerical methods and utilities for ordinary differential equations.
+ */
 
-@defgroup calculus Calculus 
-@brief Numerical methods for calculus.
-*/

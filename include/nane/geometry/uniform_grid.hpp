@@ -91,18 +91,14 @@ namespace nane::geometry
         explicit uniform_grid(std::initializer_list<uniform_axis> axes)
         {
             if (axes.size() != Dimensions)
-            {
                 throw std::invalid_argument("uniform_grid axis count must match its dimensions");
-            }
 
             std::size_t dimension = 0;
 
             for (const auto& axis : axes)
             {
                 if (axis.count < 2)
-                {
                     throw std::invalid_argument("uniform_grid count must be at least 2");
-                }
 
                 axes_[dimension] = axis;
                 coordinates_[dimension] = Eigen::ArrayXd::LinSpaced(static_cast<Eigen::Index>(axis.count), axis.start, axis.stop);
@@ -187,7 +183,6 @@ namespace nane::geometry
         [[nodiscard]] double spacing(std::size_t dimension) const
         {
             const auto& axis = axes_.at(dimension);
-
             return (axis.stop - axis.start) / static_cast<double>(axis.count - 1);
         }
 
