@@ -1,5 +1,7 @@
 /**
-@mainpage Nane
+@mainpage notitle
+
+@image html nane-logo.png "" width=280px
 
 <strong>A modern C++23 scientific computing library.</strong>
 

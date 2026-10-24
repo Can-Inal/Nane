@@ -1,6 +1,8 @@
-# Nane
+<p align="center">
+    <img src="docs/assets/nane-logo.png" alt="Nane" width="280">
+</p>
 
-<p align="left">
+<p align="center">
     <a href="https://github.com/Can-Inal/Nane/actions/workflows/build.yml">
         <img src="https://img.shields.io/github/actions/workflow/status/Can-Inal/Nane/build.yml?branch=main&style=for-the-badge&logo=github&logoColor=white&label=Build" alt="Build">
     </a>
@@ -31,8 +33,7 @@ Examples are available in the [`examples`](examples/) directory.
 
 ## Documentation
 
-The API documentation is generated with Doxygen and published through
-GitHub Pages.
+The API documentation is generated with Doxygen and published through GitHub Pages.
 
 [Open the Nane documentation](https://can-inal.github.io/Nane/)
 
