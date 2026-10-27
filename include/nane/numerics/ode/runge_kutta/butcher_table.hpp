@@ -1,12 +1,12 @@
 #pragma once
 
+#include "nane/error.hpp"
 #include "nane/math/matrix.hpp"
 #include "nane/math/vector.hpp"
 
 #include <cstddef>
 #include <initializer_list>
 #include <optional>
-#include <stdexcept>
 
 namespace nane::ode
 {
@@ -35,25 +35,11 @@ namespace nane::ode
         {
             const std::size_t stage_count = alpha.size();
 
-            if (stage_count == 0)
-            {
-                throw std::invalid_argument("Butcher table must contain at least one stage");
-            }
-
-            if (beta.size() != stage_count)
-            {
-                throw std::invalid_argument("Butcher table beta row count must match stage count");
-            }
-
-            if (gamma.size() != stage_count)
-            {
-                throw std::invalid_argument("Butcher table gamma size must match stage count");
-            }
-
-            if (embedded_gamma.size() != 0 && embedded_gamma.size() != stage_count)
-            {
-                throw std::invalid_argument("Butcher table embedded gamma size must match stage count");
-            }
+            NANE_REQUIRE(stage_count > 0, "Butcher table must contain at least one stage");
+            NANE_REQUIRE(beta.size() == stage_count, "Butcher table beta row count must match stage count");
+            NANE_REQUIRE(gamma.size() == stage_count, "Butcher table gamma size must match stage count");
+            NANE_REQUIRE(embedded_gamma.size() == 0 || embedded_gamma.size() == stage_count,
+                         "Butcher table embedded gamma size must match stage count");
 
             std::size_t i = 0;
 
@@ -64,10 +50,7 @@ namespace nane::ode
 
             for (const auto& row : beta)
             {
-                if (row.size() != stage_count)
-                {
-                    throw std::invalid_argument("Butcher table beta must be square");
-                }
+                NANE_REQUIRE(row.size() == stage_count, "Butcher table beta must be square");
 
                 std::size_t j = 0;
 
@@ -115,10 +98,7 @@ namespace nane::ode
 
         [[nodiscard]] const nane::vector<>& embedded_gamma() const
         {
-            if (!m_EmbeddedGamma)
-            {
-                throw std::logic_error("Butcher table has no embedded gamma coefficients");
-            }
+            NANE_ENSURE(m_EmbeddedGamma.has_value(), "Butcher table has no embedded gamma coefficients");
 
             return *m_EmbeddedGamma;
         }

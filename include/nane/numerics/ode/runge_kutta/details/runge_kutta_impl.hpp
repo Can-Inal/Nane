@@ -1,5 +1,6 @@
 #pragma once
 
+#include "nane/error.hpp"
 #include "nane/geometry/grid.hpp"
 #include "nane/math/matrix.hpp"
 #include "nane/math/vector.hpp"
@@ -12,7 +13,6 @@
 #include <cmath>
 #include <cstddef>
 #include <limits>
-#include <stdexcept>
 #include <vector>
 
 namespace nane::ode
@@ -53,10 +53,10 @@ namespace nane::ode
             const std::size_t stage_count = table.stages();
             const std::size_t dimension = initial_value.size();
 
-            // Creates a zero vector with the same dimension as the state.
+            // Create a zero vector with the same dimension as the state.
             //
-            // Fixed-size vectors already know their dimension at compile time,
-            // while dynamic vectors require it at runtime.
+            // Fixed-size vectors already know their dimension, while dynamic
+            // vectors need it at runtime.
             const auto make_state = [&]()
             {
                 nane::vector<Dimension> state;
@@ -69,39 +69,31 @@ namespace nane::ode
                 return state;
             };
 
-            // Computes all Runge-Kutta stage vectors for one time step.
+            // Compute all Runge-Kutta stages for one time step.
             //
-            // The stage matrix contains one stage vector in each column.
-            // For example, with dimension 3 and 4 stages we get a 3x4 matrix.
+            // Each column of the stage matrix contains one stage vector.
             const auto compute_stages = [&](double current_time, const nane::vector<Dimension>& current_state, double tau)
             {
                 nane::matrix<Dimension, nane::dynamic> stage(dimension, stage_count);
 
                 stage.fill(0.0);
 
-                // Explicit Runge-Kutta methods allow the stages to be computed
-                // one after another.
+                // Explicit methods compute the stages one after another.
                 if (table.is_explicit())
                 {
-                    // Going over the Runge-Kutta stages.
                     for (std::size_t j = 0; j < stage_count; ++j)
                     {
-                        // Weighted sum of the previous stage vectors.
+                        // Weighted sum of the previously computed stages:
                         //
                         // stage_sum = sum_l beta_jl * k_l
                         auto stage_sum = make_state();
 
-                        // The first stage has no previous stages.
-                        //
-                        // After that we use all already computed stages.
                         for (std::size_t l = 0; l < j; ++l)
                         {
                             for (std::size_t i = 0; i < dimension; ++i)
                                 stage_sum[i] += beta(j, l) * stage(i, l);
                         }
 
-                        // Computes
-                        //
                         // k_j = f(
                         //     t_n + alpha_j * tau,
                         //     x_n + tau * sum_l beta_jl * k_l
@@ -110,21 +102,17 @@ namespace nane::ode
 
                         const auto stage_value = derivative(current_time + alpha[j] * tau, stage_state);
 
-                        if (stage_value.size() != dimension)
-                        {
-                            throw std::invalid_argument("ODE derivative dimension must match state dimension");
-                        }
+                        NANE_REQUIRE(stage_value.size() == dimension, "ODE derivative dimension must match state dimension");
 
-                        // Store k_j in column j of the stage matrix.
+                        // Store k_j in column j.
                         for (std::size_t i = 0; i < dimension; ++i)
                             stage(i, j) = stage_value[i];
                     }
                 }
                 else
                 {
-                    // Implicit Runge-Kutta stages depend on each other.
-                    //
-                    // Therefore all stages must be solved simultaneously.
+                    // Implicit stages depend on each other, so all stages are
+                    // solved simultaneously.
                     //
                     // The stage vectors are flattened into one vector:
                     //
@@ -133,16 +121,13 @@ namespace nane::ode
                     {
                         nane::vector<> next_stage(dimension * stage_count);
 
-                        // Going over all Runge-Kutta stages.
                         for (std::size_t j = 0; j < stage_count; ++j)
                         {
-                            // Weighted sum of all stage vectors.
+                            // Weighted sum of all stage vectors:
                             //
                             // stage_sum = sum_l beta_jl * k_l
                             auto stage_sum = make_state();
 
-                            // Implicit methods can depend on previous, current,
-                            // and later stages, so every stage is included.
                             for (std::size_t l = 0; l < stage_count; ++l)
                             {
                                 for (std::size_t i = 0; i < dimension; ++i)
@@ -151,8 +136,6 @@ namespace nane::ode
                                 }
                             }
 
-                            // Computes
-                            //
                             // k_j = f(
                             //     t_n + alpha_j * tau,
                             //     x_n + tau * sum_l beta_jl * k_l
@@ -161,13 +144,8 @@ namespace nane::ode
 
                             const auto stage_value = derivative(current_time + alpha[j] * tau, stage_state);
 
-                            if (stage_value.size() != dimension)
-                            {
-                                throw std::invalid_argument("ODE derivative dimension must match state dimension");
-                            }
+                            NANE_REQUIRE(stage_value.size() == dimension, "ODE derivative dimension must match state dimension");
 
-                            // Write k_j back into the corresponding part of
-                            // the flattened stage vector.
                             for (std::size_t i = 0; i < dimension; ++i)
                             {
                                 next_stage[j * dimension + i] = stage_value[i];
@@ -177,28 +155,22 @@ namespace nane::ode
                         return next_stage;
                     };
 
-                    // The implicit stage equations have the form
+                    // The implicit stage equations are
                     //
-                    // K = mapping(K).
+                    // K = mapping(K),
                     //
-                    // Newton's method solves equations of the form
+                    // so Newton's method is applied to
                     //
-                    // residual(K) = 0.
-                    //
-                    // Therefore
-                    //
-                    // residual(K) = K - mapping(K).
+                    // residual(K) = K - mapping(K) = 0.
                     const auto residual = [&](const nane::vector<>& current_stage) -> nane::vector<>
                     { return current_stage - mapping(current_stage); };
 
-                    // Use a zero vector as the initial approximation for all
-                    // flattened stage vectors.
+                    // Start Newton's method with all stages equal to zero.
                     const nane::vector<> initial_stage(dimension * stage_count, 0.0);
 
                     const auto solved_stage = nane::nonlinear::newton(residual, initial_stage);
 
-                    // Unpack the flattened stage vector back into the stage
-                    // matrix. Every section becomes one column.
+                    // Unpack the flattened stages back into matrix columns.
                     for (std::size_t j = 0; j < stage_count; ++j)
                     {
                         for (std::size_t i = 0; i < dimension; ++i)
@@ -211,26 +183,19 @@ namespace nane::ode
                 return stage;
             };
 
-            // A prescribed point count means that the time grid is fixed and
-            // uniformly spaced.
+            // A prescribed point count means a fixed, uniformly spaced grid.
             if (time_grid.has_count(0))
             {
                 const std::size_t count = *time_grid.count(0);
 
                 const double tau = *time_grid.spacing(0);
 
-                // Contains all prescribed time points.
                 std::vector<double> time(count);
 
                 for (std::size_t i = 0; i < count; ++i)
                     time[i] = time_grid.axis(0)[i];
 
-                // Solution matrix.
-                //
-                // Each column contains the numerical state at one grid point.
-                //
-                // For example, with dimension 3 and 100 grid points we get
-                // a 3x100 matrix.
+                // Each column contains the state at one grid point.
                 nane::matrix<Dimension, nane::dynamic> values(dimension, count);
 
                 // The first column contains the initial state.
@@ -239,25 +204,21 @@ namespace nane::ode
 
                 auto current_state = initial_value;
 
-                // Going over the fixed time steps.
                 for (std::size_t index = 0; index + 1 < count; ++index)
                 {
                     const double current_time = time[index];
 
-                    // Compute all Runge-Kutta stages for the current step.
                     const auto stage = compute_stages(current_time, current_state, tau);
 
-                    // Computes the Runge-Kutta update
+                    // Runge-Kutta update:
                     //
                     // x_{n+1}
                     // =
                     // x_n + tau * sum_j gamma_j * k_j.
                     //
-                    // stage * gamma computes the weighted sum of all
-                    // stage vectors.
+                    // stage * gamma is the weighted sum of all stages.
                     current_state = current_state + tau * (stage * gamma);
 
-                    // Store the new state in the next solution column.
                     for (std::size_t i = 0; i < dimension; ++i)
                         values(i, index + 1) = current_state[i];
                 }
@@ -268,38 +229,31 @@ namespace nane::ode
                 };
             }
 
-            // Adaptive integration requires a second set of solution weights.
-            //
-            // Both approximations use the same Runge-Kutta stage vectors and
-            // their difference provides an estimate of the local error.
-            if (!table.has_embedded_gamma())
-            {
-                throw std::invalid_argument("adaptive Runge-Kutta integration requires embedded gamma coefficients");
-            }
+            // Adaptive integration needs a second set of weights. Both
+            // approximations share the same stages, and their difference
+            // estimates the local error.
+            NANE_REQUIRE(table.has_embedded_gamma(), "adaptive Runge-Kutta integration requires embedded gamma coefficients");
 
             const auto& embedded_gamma = table.embedded_gamma();
 
-            // The convergence order is used when adjusting the next step size.
+            // The method order determines how the next step size is chosen.
             const int method_order = nane::ode::order(table);
 
-            if (method_order <= 0)
-            {
-                throw std::invalid_argument("adaptive Runge-Kutta integration requires a method with positive order");
-            }
+            NANE_REQUIRE(method_order > 0, "adaptive Runge-Kutta integration requires a method with positive order");
 
             const double start = time_grid.start(0);
 
             const double stop = time_grid.stop(0);
 
             // Adaptive integration does not know the number of accepted
-            // time points beforehand, so values are collected dynamically.
+            // points beforehand, so they are collected dynamically.
             std::vector<double> time_values;
             std::vector<nane::vector<Dimension>> state_values;
 
             time_values.push_back(start);
             state_values.push_back(initial_value);
 
-            // There is nothing to integrate if both interval bounds are equal.
+            // Nothing to integrate if both interval bounds are equal.
             if (start == stop)
             {
                 nane::matrix<Dimension, nane::dynamic> values(dimension, 1);
@@ -313,67 +267,54 @@ namespace nane::ode
                 };
             }
 
-            // Direction is positive for forward integration and negative for
-            // backward integration.
+            // Positive for forward integration, negative for backward.
             const double direction = stop > start ? 1.0 : -1.0;
 
             double current_time = start;
 
             auto current_state = initial_value;
 
-            // Use one hundred equal parts of the interval as the initial
-            // step-size guess.
+            // Use one hundred equal parts of the interval as the initial guess.
             double tau = (stop - start) / 100.0;
 
-            // Safety factor prevents the new step size from being chosen
-            // directly at the estimated error boundary.
+            // Keep the next step slightly below the estimated error boundary.
             constexpr double safety = 0.9;
 
-            // Limits how strongly the step size may change after one step.
+            // Limit how much the step size can change after one step.
             constexpr double minimum_factor = 0.2;
             constexpr double maximum_factor = 5.0;
 
-            // Continue until the end of the integration interval is reached.
             while (direction * (stop - current_time) > 0.0)
             {
-                // Prevent the adaptive procedure from reducing the step size
-                // until floating-point arithmetic can no longer advance time.
+                // Stop if floating-point arithmetic can no longer advance time.
                 const double minimum_step = std::numeric_limits<double>::epsilon() * std::max(1.0, std::abs(current_time));
 
-                if (std::abs(tau) <= minimum_step)
-                {
-                    throw std::runtime_error("adaptive Runge-Kutta step size became too small");
-                }
+                NANE_FAIL(std::abs(tau) <= minimum_step, "adaptive Runge-Kutta step size became too small");
 
-                // Shorten the final step if necessary so that the final
-                // accepted time point is exactly the interval bound.
+                // Shorten the final step so the last point is exactly stop.
                 if (direction * (current_time + tau - stop) > 0.0)
                     tau = stop - current_time;
 
-                // Compute all Runge-Kutta stages once.
-                //
-                // Both embedded approximations use these same stages.
+                // Both embedded approximations use the same stages.
                 const auto stage = compute_stages(current_time, current_state, tau);
 
-                // Primary Runge-Kutta approximation
+                // Primary approximation:
                 //
                 // x_{n+1}
                 // =
                 // x_n + tau * sum_j gamma_j * k_j.
                 const auto next_state = current_state + tau * (stage * gamma);
 
-                // Embedded Runge-Kutta approximation
+                // Embedded approximation:
                 //
                 // x_hat_{n+1}
                 // =
                 // x_n + tau * sum_j gamma_hat_j * k_j.
                 const auto embedded_state = current_state + tau * (stage * embedded_gamma);
 
-                // The difference between both approximations estimates the
-                // local error of the current step.
+                // Difference between both approximations estimates local error.
                 const double error = (next_state - embedded_state).norm();
 
-                // Accept the step if the estimated error is small enough.
                 if (error <= adaptive_tolerance)
                 {
                     current_time += tau;
@@ -383,32 +324,26 @@ namespace nane::ode
                     state_values.push_back(current_state);
                 }
 
-                // Choose how much the next step size should change.
-                //
-                // If the estimated error is zero we can use the maximum
-                // allowed increase directly.
+                // Start with the maximum increase. If the error is nonzero,
+                // replace it with the usual adaptive step-size factor.
                 double factor = maximum_factor;
 
                 if (error > 0.0)
                 {
-                    // Computes
-                    //
                     // factor
                     // =
-                    // safety * (tolerance / error)^(1 / p),
+                    // safety * (tolerance / error)^(1 / p)
                     //
-                    // where p is the order of the primary Runge-Kutta method.
+                    // where p is the order of the primary method.
                     factor = safety * std::pow(adaptive_tolerance / error, 1.0 / static_cast<double>(method_order));
 
-                    // Prevent excessively large changes in the step size.
                     factor = std::clamp(factor, minimum_factor, maximum_factor);
                 }
 
                 tau *= factor;
             }
 
-            // Convert the dynamically collected state vectors into the matrix
-            // used by the solution representation.
+            // Convert the collected states into the matrix used by solution.
             nane::matrix<Dimension, nane::dynamic> values(dimension, state_values.size());
 
             for (std::size_t column = 0; column < state_values.size(); ++column)

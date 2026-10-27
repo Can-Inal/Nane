@@ -1,10 +1,10 @@
 #pragma once
 
+#include "nane/error.hpp"
 #include "nane/math/matrix.hpp"
 #include "nane/math/vector.hpp"
 
 #include <cstddef>
-#include <stdexcept>
 #include <type_traits>
 
 namespace nane::calculus
@@ -46,10 +46,7 @@ namespace nane::calculus
     [[nodiscard]] auto jacobian(Function&& function, const nane::vector<Dimension>& current, double step_size)
     {
         const auto value = function(current);
-
-        using value_type = std::remove_cvref_t<decltype(value)>;
-
-        constexpr std::size_t output_dimension = value_type::dimension();
+        constexpr std::size_t output_dimension = std::remove_cvref_t<decltype(value)>::dimension();
 
         nane::matrix<output_dimension, Dimension> result(value.size(), current.size());
 
@@ -64,10 +61,7 @@ namespace nane::calculus
             const auto plus_value = function(plus);
             const auto minus_value = function(minus);
 
-            if (plus_value.size() != value.size() || minus_value.size() != value.size())
-            {
-                throw std::invalid_argument("function output dimension must remain constant");
-            }
+            NANE_REQUIRE(plus_value.size() == value.size() && minus_value.size() == value.size(), "function output dimension must remain constant");
 
             for (std::size_t i = 0; i < value.size(); ++i)
             {

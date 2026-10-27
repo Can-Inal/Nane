@@ -1,10 +1,10 @@
 #pragma once
 
+#include "nane/error.hpp"
 #include "nane/math/vector.hpp"
 
 #include <cmath>
 #include <cstddef>
-#include <stdexcept>
 
 namespace nane::nonlinear
 {
@@ -66,7 +66,7 @@ namespace nane::nonlinear
             current = next;
         }
 
-        throw std::runtime_error("fixed-point iteration did not converge.");
+        NANE_FAIL(true, "fixed-point iteration did not converge.");
     }
 
     /**
@@ -133,7 +133,7 @@ namespace nane::nonlinear
             current = next;
         }
 
-        throw std::runtime_error("fixed-point iteration did not converge.");
+        NANE_FAIL(true, "fixed-point iteration did not converge.");
     }
 
 } // namespace nane::nonlinear

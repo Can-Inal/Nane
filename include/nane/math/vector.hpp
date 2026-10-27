@@ -1,12 +1,13 @@
 #pragma once
 
+#include "nane/error.hpp"
+
 #include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstddef>
 #include <initializer_list>
 #include <limits>
-#include <stdexcept>
 #include <type_traits>
 #include <vector>
 
@@ -65,10 +66,7 @@ namespace nane
             }
             else
             {
-                if (values.size() != Dimension)
-                {
-                    throw std::invalid_argument("vector initializer dimension does not match");
-                }
+                NANE_REQUIRE(values.size() == Dimension, "vector initializer dimension does not match");
 
                 std::copy(values.begin(), values.end(), m_Data.begin());
             }
@@ -116,10 +114,7 @@ namespace nane
          */
         [[nodiscard]] vector operator+(const vector& other) const
         {
-            if (size() != other.size())
-            {
-                throw std::invalid_argument("vector dimensions must match");
-            }
+            NANE_REQUIRE(size() == other.size(), "vector dimensions must match");
 
             vector result;
 
@@ -137,10 +132,7 @@ namespace nane
          */
         [[nodiscard]] vector operator-(const vector& other) const
         {
-            if (size() != other.size())
-            {
-                throw std::invalid_argument("vector dimensions must match");
-            }
+            NANE_REQUIRE(size() == other.size(), "vector dimensions must match");
 
             vector result;
 
@@ -194,10 +186,7 @@ namespace nane
          */
         [[nodiscard]] double dot(const vector& other) const
         {
-            if (size() != other.size())
-            {
-                throw std::invalid_argument("vector dimensions must match");
-            }
+            NANE_REQUIRE(size() == other.size(), "vector dimensions must match");
 
             double result = 0.0;
 

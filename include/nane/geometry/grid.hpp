@@ -1,12 +1,12 @@
 #pragma once
 
+#include "nane/error.hpp"
 #include "nane/math/vector.hpp"
 
 #include <array>
 #include <cstddef>
 #include <initializer_list>
 #include <optional>
-#include <stdexcept>
 
 namespace nane::geometry
 {
@@ -57,10 +57,7 @@ namespace nane::geometry
         grid(double start, double stop, std::size_t count)
             requires(Dimensions == 1)
         {
-            if (count < 2)
-            {
-                throw std::invalid_argument("grid count must be at least 2");
-            }
+            NANE_REQUIRE(count >= 2, "grid count must be at least 2");
 
             m_Axes[0] = {
                 start,
@@ -76,19 +73,13 @@ namespace nane::geometry
          */
         explicit grid(std::initializer_list<grid_axis> axes)
         {
-            if (axes.size() != Dimensions)
-            {
-                throw std::invalid_argument("grid axis count must match its dimensions");
-            }
+            NANE_REQUIRE(axes.size() == Dimensions, "grid axis count must match its dimensions");
 
             std::size_t dimension = 0;
 
             for (const auto& axis : axes)
             {
-                if (axis.count && *axis.count < 2)
-                {
-                    throw std::invalid_argument("grid count must be at least 2");
-                }
+                NANE_REQUIRE(!axis.count || *axis.count >= 2, "grid count must be at least 2");
 
                 m_Axes[dimension] = axis;
 
@@ -138,10 +129,7 @@ namespace nane::geometry
 
         [[nodiscard]] const nane::vector<>& axis(std::size_t dimension) const
         {
-            if (!m_Axes.at(dimension).count)
-            {
-                throw std::logic_error("grid axis has no prescribed point count");
-            }
+            NANE_ENSURE(m_Axes.at(dimension).count.has_value(), "grid axis has no prescribed point count");
 
             return m_Coordinates.at(dimension);
         }
