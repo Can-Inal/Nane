@@ -1,55 +1,22 @@
 #pragma once
 
-#include <Eigen/Core>
+#include "nane/math/matrix.hpp"
+#include "nane/math/vector.hpp"
+
+#include <cstddef>
 #include <initializer_list>
+#include <optional>
 #include <stdexcept>
 
 namespace nane::ode
 {
-
     /**
      * @ingroup ode
      *
      * @brief Represents the Butcher coefficients of a Runge-Kutta method.
      *
-     * An @f$s@f$-stage Runge-Kutta method is defined by the coefficients
-     * @f$\alpha@f$, @f$\beta@f$, and @f$\gamma@f$.
-     *
-     * The stage values are given by
-     *
-     * @f[
-     * k_i
-     * =
-     * f\left(
-     * t_n + \alpha_i \tau,
-     * x_n + \tau \sum_{j=1}^{s} \beta_{ij} k_j
-     * \right),
-     * @f]
-     *
-     * followed by the update
-     *
-     * @f[
-     * x_{n+1}
-     * =
-     * x_n
-     * +
-     * \tau
-     * \sum_{i=1}^{s}
-     * \gamma_i k_i.
-     * @f]
-     *
-     * The coefficients are commonly written as the Butcher tableau
-     *
-     * @f[
-     * \begin{array}{c|c}
-     * \alpha & \beta \\
-     * \hline
-     *        & \gamma^{T}
-     * \end{array}.
-     * @f]
-     *
-     * The table validates that the coefficient dimensions are consistent
-     * when it is constructed.
+     * An optional second weight vector defines an embedded Runge-Kutta
+     * approximation for error estimation.
      */
     class butcher_table
     {
@@ -57,137 +24,117 @@ namespace nane::ode
         /**
          * @brief Constructs a Butcher table from its coefficients.
          *
-         * The number of stages is determined by the size of @p alpha.
-         * Consequently, @p beta must be a square matrix with the same
-         * number of rows and columns, and @p gamma must contain the same
-         * number of entries.
-         *
-         * For example, Heun's method can be represented as
-         *
-         * @code
-         * const nane::butcher_table table{
-         *     {0.0, 1.0},
-         *     {
-         *         {0.0, 0.0},
-         *         {1.0, 0.0},
-         *     },
-         *     {0.5, 0.5},
-         * };
-         * @endcode
-         *
          * @param alpha Stage-time coefficients.
          * @param beta Stage coupling coefficients.
          * @param gamma Solution weights.
-         *
-         * @throws std::invalid_argument If the table contains no stages.
-         * @throws std::invalid_argument If the coefficient dimensions are
-         * inconsistent.
+         * @param embedded_gamma Optional embedded solution weights.
          */
         butcher_table(std::initializer_list<double> alpha, std::initializer_list<std::initializer_list<double>> beta,
-                      std::initializer_list<double> gamma)
+                      std::initializer_list<double> gamma, std::initializer_list<double> embedded_gamma = {})
+            : m_Alpha(alpha.size()), m_Beta(alpha.size(), alpha.size()), m_Gamma(gamma.size())
         {
-            const auto stage_count = static_cast<Eigen::Index>(alpha.size());
+            const std::size_t stage_count = alpha.size();
 
             if (stage_count == 0)
-                throw std::invalid_argument("Butcher table must contain at least one stage.");
+            {
+                throw std::invalid_argument("Butcher table must contain at least one stage");
+            }
 
-            if (static_cast<Eigen::Index>(beta.size()) != stage_count)
-                throw std::invalid_argument("Butcher table beta row count must match stage count.");
+            if (beta.size() != stage_count)
+            {
+                throw std::invalid_argument("Butcher table beta row count must match stage count");
+            }
 
-            if (static_cast<Eigen::Index>(gamma.size()) != stage_count)
-                throw std::invalid_argument("Butcher table gamma size must match stage count.");
+            if (gamma.size() != stage_count)
+            {
+                throw std::invalid_argument("Butcher table gamma size must match stage count");
+            }
 
-            alpha_.resize(stage_count);
-            beta_.resize(stage_count, stage_count);
-            gamma_.resize(stage_count);
+            if (embedded_gamma.size() != 0 && embedded_gamma.size() != stage_count)
+            {
+                throw std::invalid_argument("Butcher table embedded gamma size must match stage count");
+            }
 
-            Eigen::Index i = 0;
+            std::size_t i = 0;
 
-            for (const auto value : alpha)
-                alpha_[i++] = value;
+            for (const double value : alpha)
+                m_Alpha[i++] = value;
 
             i = 0;
 
             for (const auto& row : beta)
             {
-                if (static_cast<Eigen::Index>(row.size()) != stage_count)
-                    throw std::invalid_argument("Butcher table beta must be square.");
+                if (row.size() != stage_count)
+                {
+                    throw std::invalid_argument("Butcher table beta must be square");
+                }
 
-                Eigen::Index j = 0;
+                std::size_t j = 0;
 
-                for (const auto value : row)
-                    beta_(i, j++) = value;
+                for (const double value : row)
+                    m_Beta(i, j++) = value;
 
                 ++i;
             }
 
             i = 0;
 
-            for (const auto value : gamma)
-                gamma_[i++] = value;
+            for (const double value : gamma)
+                m_Gamma[i++] = value;
+
+            if (embedded_gamma.size() != 0)
+            {
+                m_EmbeddedGamma.emplace(stage_count);
+
+                i = 0;
+
+                for (const double value : embedded_gamma)
+                    (*m_EmbeddedGamma)[i++] = value;
+            }
         }
 
-        /**
-         * @brief Returns the stage-time coefficients.
-         *
-         * @return Constant reference to @f$\alpha@f$.
-         */
-        [[nodiscard]] const Eigen::VectorXd& alpha() const noexcept
+        [[nodiscard]] const nane::vector<>& alpha() const noexcept
         {
-            return alpha_;
+            return m_Alpha;
         }
 
-        /**
-         * @brief Returns the stage coupling coefficients.
-         *
-         * @return Constant reference to @f$\beta@f$.
-         */
-        [[nodiscard]] const Eigen::MatrixXd& beta() const noexcept
+        [[nodiscard]] const nane::matrix<>& beta() const noexcept
         {
-            return beta_;
+            return m_Beta;
         }
 
-        /**
-         * @brief Returns the solution weights.
-         *
-         * @return Constant reference to @f$\gamma@f$.
-         */
-        [[nodiscard]] const Eigen::VectorXd& gamma() const noexcept
+        [[nodiscard]] const nane::vector<>& gamma() const noexcept
         {
-            return gamma_;
+            return m_Gamma;
         }
 
-        /**
-         * @brief Returns the number of Runge-Kutta stages.
-         *
-         * @return Number of stages in the method.
-         */
-        [[nodiscard]] Eigen::Index stages() const noexcept
+        [[nodiscard]] bool has_embedded_gamma() const noexcept
         {
-            return alpha_.size();
+            return m_EmbeddedGamma.has_value();
         }
 
-        /**
-         * @brief Determines whether the Runge-Kutta method is explicit.
-         *
-         * A Runge-Kutta method is explicit when @f$\beta@f$ is strictly
-         * lower triangular, that is,
-         *
-         * @f[
-         * \beta_{ij} = 0
-         * \qquad
-         * \text{for } j \geq i.
-         * @f]
-         *
-         * @return @c true if the method is explicit, otherwise @c false.
-         */
+        [[nodiscard]] const nane::vector<>& embedded_gamma() const
+        {
+            if (!m_EmbeddedGamma)
+            {
+                throw std::logic_error("Butcher table has no embedded gamma coefficients");
+            }
+
+            return *m_EmbeddedGamma;
+        }
+
+        [[nodiscard]] std::size_t stages() const noexcept
+        {
+            return m_Alpha.size();
+        }
+
         [[nodiscard]] bool is_explicit() const noexcept
         {
-            for (Eigen::Index i = 0; i < beta_.rows(); ++i)
+            for (std::size_t i = 0; i < m_Beta.rows(); ++i)
             {
-                for (Eigen::Index j = i; j < beta_.cols(); ++j)
+                for (std::size_t j = i; j < m_Beta.columns(); ++j)
                 {
-                    if (beta_(i, j) != 0.0)
+                    if (m_Beta(i, j) != 0.0)
                         return false;
                 }
             }
@@ -196,9 +143,10 @@ namespace nane::ode
         }
 
     private:
-        Eigen::VectorXd alpha_;
-        Eigen::MatrixXd beta_;
-        Eigen::VectorXd gamma_;
+        nane::vector<> m_Alpha;
+        nane::matrix<> m_Beta;
+        nane::vector<> m_Gamma;
+        std::optional<nane::vector<>> m_EmbeddedGamma;
     };
 
 } // namespace nane::ode

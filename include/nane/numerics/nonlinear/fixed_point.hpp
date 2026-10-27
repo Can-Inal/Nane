@@ -1,7 +1,9 @@
 #pragma once
 
-#include <Eigen/Core>
+#include "nane/math/vector.hpp"
+
 #include <cmath>
+#include <cstddef>
 #include <stdexcept>
 
 namespace nane::nonlinear
@@ -103,6 +105,7 @@ namespace nane::nonlinear
      * where @f$\varepsilon@f$ is the specified tolerance.
      *
      * @tparam Function Type of the fixed-point mapping.
+     * @tparam Dimension Vector dimension.
      *
      * @param function Fixed-point mapping @f$\mathbf{F}(\mathbf{x})@f$.
      * @param initial_guess Initial approximation of the fixed point.
@@ -114,15 +117,15 @@ namespace nane::nonlinear
      * @throws std::runtime_error If the iteration does not converge within
      * the maximum number of iterations.
      */
-    template <typename Function>
-    [[nodiscard]] Eigen::VectorXd fixed_point(Function&& function, const Eigen::VectorXd& initial_guess, double tolerance = 1e-10,
-                                              int max_iterations = 100)
+    template <typename Function, std::size_t Dimension>
+    [[nodiscard]] nane::vector<Dimension> fixed_point(Function&& function, const nane::vector<Dimension>& initial_guess, double tolerance = 1e-10,
+                                                      int max_iterations = 100)
     {
-        Eigen::VectorXd current = initial_guess;
+        auto current = initial_guess;
 
         for (auto i = 0; i < max_iterations; i++)
         {
-            Eigen::VectorXd next = function(current);
+            auto next = function(current);
 
             if ((next - current).norm() < tolerance)
                 return next;

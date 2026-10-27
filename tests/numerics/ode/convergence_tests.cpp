@@ -1,7 +1,6 @@
-#include "nane/geometry/uniform_grid.hpp"
-#include "nane/numerics/ode/one_step.hpp"
+#include "nane/numerics/ode/runge_kutta/methods.hpp"
+#include "nane/numerics/ode/runge_kutta/runge_kutta.hpp"
 
-#include <Eigen/Core>
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include <cmath>
@@ -9,141 +8,35 @@
 
 namespace
 {
-    template <typename Solver>
-    double observed_convergence_order(Solver solver, std::size_t coarse_count, std::size_t fine_count)
+    double observed_order(const nane::ode::butcher_table& method, std::size_t coarse_count, std::size_t fine_count)
     {
-        // x' = -x
-        const auto derivative = [](double time, double value) { return -value; };
+        const auto derivative = [](double, double x) { return -x; };
         const auto problem = nane::ode::ivp(derivative, 1.0);
 
-        nane::geometry::uniform_grid<1> coarse_grid({
-            {0.0, 1.0, coarse_count},
-        });
-
-        nane::geometry::uniform_grid<1> fine_grid({
-            {0.0, 1.0, fine_count},
-        });
-
-        const Eigen::VectorXd coarse_solution = solver(problem, coarse_grid);
-        const Eigen::VectorXd fine_solution = solver(problem, fine_grid);
+        const auto coarse = nane::ode::runge_kutta(problem, method, {0.0, 1.0, coarse_count});
+        const auto fine = nane::ode::runge_kutta(problem, method, {0.0, 1.0, fine_count});
 
         const double exact = std::exp(-1.0);
 
-        const double coarse_value = coarse_solution[coarse_solution.size() - 1];
-        const double fine_value = fine_solution[fine_solution.size() - 1];
+        const double coarse_error = std::abs(coarse.values[coarse.values.size() - 1] - exact);
+        const double fine_error = std::abs(fine.values[fine.values.size() - 1] - exact);
 
-        const double coarse_error = std::abs(coarse_value - exact);
-        const double fine_error = std::abs(fine_value - exact);
+        const double coarse_step = 1.0 / static_cast<double>(coarse_count - 1);
+        const double fine_step = 1.0 / static_cast<double>(fine_count - 1);
 
-        const double step_ratio = coarse_grid.spacing(0) / fine_grid.spacing(0);
-        const double order = std::log(coarse_error / fine_error) / std::log(step_ratio);
-
-        return order;
+        return std::log(coarse_error / fine_error) / std::log(coarse_step / fine_step);
     }
-
 } // namespace
 
-TEST_CASE("Explicit Euler has first-order convergence", "[ode][explicit_euler][convergence]")
+TEST_CASE("Runge-Kutta methods converge with their expected order", "[ode][runge-kutta][convergence]")
 {
-    // clang-format off
-    const double order = observed_convergence_order(
-	    [](const auto& problem, const auto& time_grid) 
-	    { 
-		return nane::ode::explicit_euler(problem, time_grid); 
-	    },
-	    11, 21
-	);
-    // clang-format on
+    using namespace nane::ode;
 
-    REQUIRE(order == Catch::Approx(1.0).margin(0.1));
-}
-
-TEST_CASE("Implicit Euler has first-order convergence", "[ode][implicit_euler][convergence]")
-{
-    // clang-format off
-    const double order = observed_convergence_order(
-	    [](const auto& problem, const auto& time_grid) 
-	    { 
-		return nane::ode::implicit_euler(problem, time_grid); 
-	    }, 
-	    11, 21
-	);
-    // clang-format on
-
-    REQUIRE(order == Catch::Approx(1.0).margin(0.1));
-}
-
-TEST_CASE("Heun has second-order convergence", "[ode][heun][convergence]")
-{
-    // clang-format off
-    const double order = observed_convergence_order(
-	    [](const auto& problem, const auto& time_grid) 
-	    { 
-		return nane::ode::heun(problem, time_grid); 
-	    }, 
-	    11, 21
-	);
-    // clang-format on
-
-    REQUIRE(order == Catch::Approx(2.0).margin(0.1));
-}
-
-TEST_CASE("Modified Euler has second-order convergence", "[ode][modified_euler][convergence]")
-{
-    // clang-format off
-    const double order = observed_convergence_order(
-	    [](const auto& problem, const auto& time_grid) 
-	    { 
-		return nane::ode::modified_euler(problem, time_grid); 
-	    }, 
-	    11, 21
-	);
-    // clang-format on
-
-    REQUIRE(order == Catch::Approx(2.0).margin(0.1));
-}
-
-TEST_CASE("Implicit midpoint has second-order convergence", "[ode][implicit_midpoint][convergence]")
-{
-    // clang-format off
-    const double order = observed_convergence_order(
-	    [](const auto& problem, const auto& time_grid) 
-	    { 
-		return nane::ode::implicit_midpoint(problem, time_grid); 
-	    }, 
-	    11, 21
-	);
-    // clang-format on 
-
-    REQUIRE(order == Catch::Approx(2.0).margin(0.1));
-}
-
-TEST_CASE("Crank-Nicolson has second-order convergence", "[ode][crank_nicolson][convergence]")
-{
-    // clang-format off 
-    const double order = observed_convergence_order(
-	    [](const auto& problem, const auto& time_grid)
-	    { 
-		return nane::ode::crank_nicolson(problem, time_grid); 
-	    }, 
-	    11, 21
-	);
-    // clang-format on 
-
-    REQUIRE(order == Catch::Approx(2.0).margin(0.1));
-}
-
-TEST_CASE("RK4 has fourth-order convergence", "[ode][rk4][convergence]")
-{
-    // clang-format off 
-    const double order = observed_convergence_order(
-	    [](const auto& problem, const auto& time_grid) 
-	    { 
-		return nane::ode::rk4(problem, time_grid); 
-	    }, 
-	    11, 21
-	);
-    // clang-format on 
-
-    REQUIRE(order == Catch::Approx(4.0).margin(0.15));
+    REQUIRE(observed_order(methods::explicit_euler, 11, 21) == Catch::Approx(1.0).margin(0.1));
+    REQUIRE(observed_order(methods::implicit_euler, 11, 21) == Catch::Approx(1.0).margin(0.1));
+    REQUIRE(observed_order(methods::heun, 11, 21) == Catch::Approx(2.0).margin(0.1));
+    REQUIRE(observed_order(methods::modified_euler, 11, 21) == Catch::Approx(2.0).margin(0.1));
+    REQUIRE(observed_order(methods::implicit_midpoint, 11, 21) == Catch::Approx(2.0).margin(0.1));
+    REQUIRE(observed_order(methods::crank_nicolson, 11, 21) == Catch::Approx(2.0).margin(0.1));
+    REQUIRE(observed_order(methods::rk4, 11, 21) == Catch::Approx(4.0).margin(0.15));
 }

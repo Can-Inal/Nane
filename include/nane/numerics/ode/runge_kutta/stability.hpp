@@ -5,74 +5,75 @@
 #include <Eigen/Core>
 #include <Eigen/LU>
 #include <complex>
+#include <cstddef>
 
 namespace nane::ode
 {
     /**
      * @ingroup ode
      *
-     * @brief Evaluates the stability function of a Runge-Kutta method.
+     * @brief Evaluates the Runge-Kutta stability function.
      *
-     * For a Runge-Kutta method defined by the Butcher coefficients
-     * @f$\beta@f$ and @f$\gamma@f$, the stability function is given by
+     * The stability function is
      *
      * @f[
      * R(z)
      * =
      * 1
      * +
-     * z \gamma^T
+     * z
+     * \gamma^T
      * (I - z\beta)^{-1}
      * \mathbf{1}.
      * @f]
      *
-     * Here, @f$I@f$ denotes the identity matrix and @f$\mathbf{1}@f$
-     * denotes the vector whose entries are all equal to one.
-     *
-     * The complex argument @f$z@f$ typically represents
-     * @f$z = \tau \lambda@f$ when analyzing the linear test equation
-     * @f$\dot{x} = \lambda x@f$.
-     *
      * @param table Butcher table defining the Runge-Kutta method.
-     * @param z Complex argument at which the stability function is evaluated.
+     * @param z Complex stability parameter.
      *
-     * @return Value of the stability function @f$R(z)@f$.
+     * @return Value of the stability function.
      */
     [[nodiscard]] inline std::complex<double> stability_function(const butcher_table& table, std::complex<double> z)
     {
-        const auto& gamma = table.gamma();
         const auto& beta = table.beta();
+        const auto& gamma = table.gamma();
 
-        const Eigen::Index stages = beta.rows();
+        const std::size_t stage_count = table.stages();
+
+        const auto stages = static_cast<Eigen::Index>(stage_count);
+
+        Eigen::MatrixXcd beta_complex(stages, stages);
+
+        Eigen::VectorXcd gamma_complex(stages);
+
+        for (std::size_t i = 0; i < stage_count; ++i)
+        {
+            gamma_complex[static_cast<Eigen::Index>(i)] = gamma[i];
+
+            for (std::size_t j = 0; j < stage_count; ++j)
+            {
+                beta_complex(static_cast<Eigen::Index>(i), static_cast<Eigen::Index>(j)) = beta(i, j);
+            }
+        }
 
         const Eigen::MatrixXcd identity = Eigen::MatrixXcd::Identity(stages, stages);
+
         const Eigen::VectorXcd ones = Eigen::VectorXcd::Ones(stages);
 
-        const Eigen::VectorXcd gamma_complex = gamma.cast<std::complex<double>>();
-        const Eigen::MatrixXcd beta_complex = beta.cast<std::complex<double>>();
+        const Eigen::VectorXcd solution = (identity - z * beta_complex).partialPivLu().solve(ones);
 
-        const auto value = gamma_complex.transpose() * (identity - z * beta_complex).inverse() * ones;
-
-        return 1.0 + z * value(0, 0);
+        return 1.0 + z * gamma_complex.dot(solution);
     }
 
     /**
      * @ingroup ode
      *
-     * @brief Checks whether a Runge-Kutta method is absolutely stable at a given point.
-     *
-     * A Runge-Kutta method is absolutely stable at @f$z@f$ if
-     *
-     * @f[
-     * |R(z)| \leq 1,
-     * @f]
-     *
-     * where @f$R(z)@f$ is the stability function of the method.
+     * @brief Determines whether a point lies inside the absolute
+     * stability region.
      *
      * @param table Butcher table defining the Runge-Kutta method.
-     * @param z Complex point in the stability plane.
+     * @param z Complex stability parameter.
      *
-     * @return True if @f$z@f$ lies inside the absolute stability region.
+     * @return True if @f$|R(z)| \leq 1@f$.
      */
     [[nodiscard]] inline bool is_stable(const butcher_table& table, std::complex<double> z)
     {

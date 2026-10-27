@@ -1,10 +1,19 @@
 #pragma once
 
-#include <Eigen/Core>
+#include "nane/math/matrix.hpp"
+#include "nane/math/vector.hpp"
+
+#include <cstddef>
+#include <stdexcept>
+#include <type_traits>
 
 namespace nane::calculus
 {
     /**
+     * @ingroup calculus
+     *
+     * @brief Approximates the Jacobian matrix using central differences.
+     *
      * Each column is approximated using a central difference,
      *
      * @f[
@@ -23,22 +32,47 @@ namespace nane::calculus
      * @f[
      * O(h^2).
      * @f]
+     *
+     * @tparam Function Type of the vector-valued function.
+     * @tparam Dimension Input dimension.
+     *
+     * @param function Vector-valued function.
+     * @param current Point at which the Jacobian is approximated.
+     * @param step_size Finite-difference step.
+     *
+     * @return Approximation of the Jacobian matrix.
      */
-    template <typename Function>
-    [[nodiscard]] Eigen::MatrixXd jacobian(Function&& function, const Eigen::VectorXd& current, double step_size)
+    template <typename Function, std::size_t Dimension>
+    [[nodiscard]] auto jacobian(Function&& function, const nane::vector<Dimension>& current, double step_size)
     {
-        const Eigen::VectorXd value = function(current);
-        Eigen::MatrixXd result(value.size(), current.size());
+        const auto value = function(current);
 
-        for (Eigen::Index j = 0; j < current.size(); ++j)
+        using value_type = std::remove_cvref_t<decltype(value)>;
+
+        constexpr std::size_t output_dimension = value_type::dimension();
+
+        nane::matrix<output_dimension, Dimension> result(value.size(), current.size());
+
+        for (std::size_t j = 0; j < current.size(); ++j)
         {
-            Eigen::VectorXd plus = current;
-            Eigen::VectorXd minus = current;
+            auto plus = current;
+            auto minus = current;
 
             plus[j] += step_size;
             minus[j] -= step_size;
 
-            result.col(j) = (function(plus) - function(minus)) / (2.0 * step_size);
+            const auto plus_value = function(plus);
+            const auto minus_value = function(minus);
+
+            if (plus_value.size() != value.size() || minus_value.size() != value.size())
+            {
+                throw std::invalid_argument("function output dimension must remain constant");
+            }
+
+            for (std::size_t i = 0; i < value.size(); ++i)
+            {
+                result(i, j) = (plus_value[i] - minus_value[i]) / (2.0 * step_size);
+            }
         }
 
         return result;

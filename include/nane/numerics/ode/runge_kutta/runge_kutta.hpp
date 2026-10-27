@@ -1,11 +1,14 @@
 #pragma once
 
-#include "nane/geometry/uniform_grid.hpp"
+#include "nane/geometry/grid.hpp"
+#include "nane/math/matrix.hpp"
+#include "nane/math/vector.hpp"
 #include "nane/numerics/ode/ivp.hpp"
 #include "nane/numerics/ode/runge_kutta/butcher_table.hpp"
 #include "nane/numerics/ode/runge_kutta/details/runge_kutta_impl.hpp"
+#include "nane/numerics/ode/solution.hpp"
 
-#include <Eigen/Core>
+#include <cstddef>
 
 namespace nane::ode
 {
@@ -14,36 +17,42 @@ namespace nane::ode
      *
      * @brief Solves a scalar initial value problem using a Runge-Kutta method.
      *
-     * The Runge-Kutta method is defined by the supplied Butcher table.
-     * The order of accuracy depends on the coefficients of the Butcher table.
-     *
      * @tparam Derivative Type of the right-hand-side function.
      *
      * @param problem Scalar initial value problem.
-     * @param time_grid Time discretization.
      * @param table Butcher table defining the Runge-Kutta method.
+     * @param time_grid Time grid specification.
      *
-     * @return Numerical solution at all time-grid points.
+     * @return Time points and numerical solution values.
      */
     template <typename Derivative>
-    [[nodiscard]] Eigen::VectorXd runge_kutta(const nane::ode::ivp<Derivative, double>& problem, const nane::geometry::uniform_grid<1>& time_grid,
-                                              const nane::ode::butcher_table& table)
+    [[nodiscard]] nane::ode::solution<nane::vector<>> runge_kutta(const nane::ode::ivp<Derivative, double>& problem,
+                                                                  const nane::ode::butcher_table& table, const nane::geometry::grid<1>& time_grid)
     {
-        Eigen::VectorXd initial_value(1);
-        initial_value[0] = problem.initial_value();
-
-        // Adapt the scalar derivative to the vector interface used internally.
-        const auto derivative = [&](double time, const Eigen::VectorXd& state)
-        {
-            Eigen::VectorXd value(1);
-            value[0] = problem.derivative()(time, state[0]);
-
-            return value;
+        const nane::vector<1> initial_value{
+            problem.initial_value(),
         };
 
-        const Eigen::MatrixXd solution = nane::ode::detail::runge_kutta_impl(derivative, initial_value, time_grid, table);
+        const auto derivative = [&](double time, const nane::vector<1>& state)
+        {
+            return nane::vector<1>{
+                problem.derivative()(time, state[0]),
+            };
+        };
 
-        return solution.row(0).transpose();
+        const auto result = nane::ode::detail::runge_kutta_impl(derivative, initial_value, time_grid, table);
+
+        nane::vector<> values(result.values.columns());
+
+        for (std::size_t i = 0; i < result.values.columns(); ++i)
+        {
+            values[i] = result.values(0, i);
+        }
+
+        return {
+            result.time,
+            values,
+        };
     }
 
     /**
@@ -52,20 +61,19 @@ namespace nane::ode
      * @brief Solves a vector-valued initial value problem using a
      * Runge-Kutta method.
      *
-     * The Runge-Kutta method is defined by the supplied Butcher table.
-     * The order of accuracy depends on the coefficients of the Butcher table.
-     *
-     * @tparam Derivative Type of the right-hand-side system.
+     * @tparam Derivative Type of the right-hand-side function.
+     * @tparam Dimension State dimension.
      *
      * @param problem Vector-valued initial value problem.
-     * @param time_grid Time discretization.
      * @param table Butcher table defining the Runge-Kutta method.
+     * @param time_grid Time grid specification.
      *
-     * @return Matrix whose columns contain the numerical states.
+     * @return Time points and numerical solution states.
      */
-    template <typename Derivative>
-    [[nodiscard]] Eigen::MatrixXd runge_kutta(const nane::ode::ivp<Derivative, Eigen::VectorXd>& problem,
-                                              const nane::geometry::uniform_grid<1>& time_grid, const nane::ode::butcher_table& table)
+    template <typename Derivative, std::size_t Dimension>
+    [[nodiscard]] nane::ode::solution<nane::matrix<Dimension, nane::dynamic>>
+    runge_kutta(const nane::ode::ivp<Derivative, nane::vector<Dimension>>& problem, const nane::ode::butcher_table& table,
+                const nane::geometry::grid<1>& time_grid)
     {
         return nane::ode::detail::runge_kutta_impl(problem.derivative(), problem.initial_value(), time_grid, table);
     }
