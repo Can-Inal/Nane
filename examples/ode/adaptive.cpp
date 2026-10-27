@@ -1,7 +1,6 @@
 #include <cmath>
 #include <nane/math/vector.hpp>
-#include <nane/numerics/ode/runge_kutta/butcher_table.hpp>
-#include <nane/numerics/ode/runge_kutta/runge_kutta.hpp>
+#include <nane/numerics/ode/solve.hpp>
 
 int main(int argc, char* argv[])
 {
@@ -32,7 +31,7 @@ int main(int argc, char* argv[])
         {1.0, 0.0},
     };
 
-    [[maybe_unused]] const auto solution = nane::ode::runge_kutta(problem, method, {0.0, 10.0});
+    [[maybe_unused]] const auto solution = nane::ode::solve(problem, method, {0.0, 10.0});
 
     return 0;
 }
