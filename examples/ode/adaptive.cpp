@@ -33,4 +33,6 @@ int main(int argc, char* argv[])
     };
 
     [[maybe_unused]] const auto solution = nane::ode::runge_kutta(problem, method, {0.0, 10.0});
+
+    return 0;
 }

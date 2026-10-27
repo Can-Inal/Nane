@@ -8,4 +8,6 @@ int main(int argc, char* argv[])
     const auto problem = nane::ode::ivp(derivative, 5.3);
 
     [[maybe_unused]] const auto solution = nane::ode::runge_kutta(problem, nane::ode::methods::heun, {0.0, 2.0, 101});
+
+    return 0;
 }

@@ -2,8 +2,9 @@
 
 #include "nane/error.hpp"
 #include "nane/math/vector.hpp"
-#include "nane/numerics/calculus/central_difference.hpp"
-#include "nane/numerics/calculus/jacobian.hpp"
+#include "nane/numerics/calculus/differentiation/differentiate.hpp"
+#include "nane/numerics/calculus/differentiation/stencil.hpp"
+#include "nane/numerics/calculus/differentiation/stencils.hpp"
 
 #include <Eigen/Core>
 #include <Eigen/LU>
@@ -23,7 +24,8 @@ namespace nane::nonlinear
      * f(x) = 0
      * @f]
      *
-     * using Newton iteration.
+     * using Newton iteration. The derivative is approximated using
+     * a centered finite-difference stencil.
      *
      * @tparam Function Type of the nonlinear function.
      *
@@ -37,17 +39,18 @@ namespace nane::nonlinear
     template <typename Function>
     [[nodiscard]] double newton(Function&& function, double initial_guess, double tolerance = 1e-10, int max_iteration = 100)
     {
-        constexpr double step_size = 1e-6;
+        const auto derivative_stencil = nane::calculus::stencils::central_first(1e-6);
+
         auto current = initial_guess;
 
-        for (int i = 0; i < max_iteration; ++i)
+        for (int iteration = 0; iteration < max_iteration; ++iteration)
         {
             const auto value = function(current);
 
             if (std::abs(value) < tolerance)
                 return current;
 
-            const auto derivative = nane::calculus::central_difference(function, current, step_size);
+            const auto derivative = nane::calculus::differentiate(function, current, derivative_stencil);
 
             NANE_FAIL(std::abs(derivative) < tolerance, "Newton iteration encountered a near-zero derivative.");
 
@@ -73,8 +76,8 @@ namespace nane::nonlinear
      * \mathbf{F}(\mathbf{x}) = \mathbf{0}
      * @f]
      *
-     * using Newton iteration. The Jacobian is approximated using
-     * central differences.
+     * using Newton iteration. The Jacobian is approximated by applying
+     * a centered finite-difference stencil in each coordinate direction.
      *
      * @tparam Function Type of the nonlinear function.
      * @tparam Dimension Vector dimension.
@@ -90,7 +93,8 @@ namespace nane::nonlinear
     [[nodiscard]] nane::vector<Dimension> newton(Function&& function, const nane::vector<Dimension>& initial_guess, double tolerance = 1e-10,
                                                  int max_iteration = 100)
     {
-        constexpr double step_size = 1e-6;
+        const auto derivative_stencil = nane::calculus::stencils::central_first(1e-6);
+
         const std::size_t dimension = initial_guess.size();
 
         auto current = initial_guess;
@@ -104,7 +108,7 @@ namespace nane::nonlinear
             if (value.norm() < tolerance)
                 return current;
 
-            const auto jacobian = nane::calculus::jacobian(function, current, step_size);
+            const auto jacobian = nane::calculus::differentiate(function, current, derivative_stencil);
 
             nane::vector<Dimension> delta;
 
