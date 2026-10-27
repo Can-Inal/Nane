@@ -19,8 +19,6 @@ namespace nane::ode
 {
     namespace detail
     {
-        inline constexpr double adaptive_tolerance = 1e-6;
-
         /**
          * @brief Common Runge-Kutta implementation for vector-valued states.
          *
@@ -38,14 +36,17 @@ namespace nane::ode
          * @param initial_value Initial state.
          * @param time_grid Time grid specification.
          * @param table Butcher table defining the Runge-Kutta method.
+         * @param tolerance Tolerance for adaptive ODE control.
          *
          * @return Time points and numerical states.
          */
         template <typename Derivative, std::size_t Dimension>
         [[nodiscard]] nane::ode::solution<nane::matrix<Dimension, nane::dynamic>>
         runge_kutta_impl(const Derivative& derivative, const nane::vector<Dimension>& initial_value, const nane::geometry::grid<1>& time_grid,
-                         const nane::ode::butcher_table& table)
+                         const nane::ode::butcher_table& table, double tolerance = 1e-6)
         {
+            NANE_REQUIRE(tolerance > 0.0, "Runge-Kutta tolerance must be positive");
+
             const auto& alpha = table.alpha();
             const auto& beta = table.beta();
             const auto& gamma = table.gamma();
@@ -315,7 +316,7 @@ namespace nane::ode
                 // Difference between both approximations estimates local error.
                 const double error = (next_state - embedded_state).norm();
 
-                if (error <= adaptive_tolerance)
+                if (error <= tolerance)
                 {
                     current_time += tau;
                     current_state = next_state;
@@ -335,7 +336,7 @@ namespace nane::ode
                     // safety * (tolerance / error)^(1 / p)
                     //
                     // where p is the order of the primary method.
-                    factor = safety * std::pow(adaptive_tolerance / error, 1.0 / static_cast<double>(method_order));
+                    factor = safety * std::pow(tolerance / error, 1.0 / static_cast<double>(method_order));
 
                     factor = std::clamp(factor, minimum_factor, maximum_factor);
                 }

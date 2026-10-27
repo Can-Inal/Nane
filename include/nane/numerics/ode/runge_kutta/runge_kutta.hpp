@@ -22,12 +22,14 @@ namespace nane::ode
      * @param problem Scalar initial value problem.
      * @param table Butcher table defining the Runge-Kutta method.
      * @param time_grid Time grid specification.
+     * @param tolerance Tolerance for adaptive ODE control.
      *
      * @return Time points and numerical solution values.
      */
     template <typename Derivative>
     [[nodiscard]] nane::ode::solution<nane::vector<>> runge_kutta(const nane::ode::ivp<Derivative, double>& problem,
-                                                                  const nane::ode::butcher_table& table, const nane::geometry::grid<1>& time_grid)
+                                                                  const nane::ode::butcher_table& table, const nane::geometry::grid<1>& time_grid,
+                                                                  double tolerance = 1e-6)
     {
         const nane::vector<1> initial_value{
             problem.initial_value(),
@@ -40,7 +42,7 @@ namespace nane::ode
             };
         };
 
-        const auto result = nane::ode::detail::runge_kutta_impl(derivative, initial_value, time_grid, table);
+        const auto result = nane::ode::detail::runge_kutta_impl(derivative, initial_value, time_grid, table, tolerance);
 
         nane::vector<> values(result.values.columns());
 
@@ -67,15 +69,16 @@ namespace nane::ode
      * @param problem Vector-valued initial value problem.
      * @param table Butcher table defining the Runge-Kutta method.
      * @param time_grid Time grid specification.
+     * @param tolerance Tolerance for adaptive ODE control.
      *
      * @return Time points and numerical solution states.
      */
     template <typename Derivative, std::size_t Dimension>
     [[nodiscard]] nane::ode::solution<nane::matrix<Dimension, nane::dynamic>>
     runge_kutta(const nane::ode::ivp<Derivative, nane::vector<Dimension>>& problem, const nane::ode::butcher_table& table,
-                const nane::geometry::grid<1>& time_grid)
+                const nane::geometry::grid<1>& time_grid, double tolerance = 1e-6)
     {
-        return nane::ode::detail::runge_kutta_impl(problem.derivative(), problem.initial_value(), time_grid, table);
+        return nane::ode::detail::runge_kutta_impl(problem.derivative(), problem.initial_value(), time_grid, table, tolerance);
     }
 
 } // namespace nane::ode

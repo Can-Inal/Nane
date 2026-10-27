@@ -3,7 +3,7 @@
 #include <nane/numerics/ode/runge_kutta/butcher_table.hpp>
 #include <nane/numerics/ode/runge_kutta/runge_kutta.hpp>
 
-int main()
+int main(int argc, char* argv[])
 {
     const auto derivative = [](double t, const nane::vector<2>& x)
     {

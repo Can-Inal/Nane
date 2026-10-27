@@ -1,7 +1,7 @@
 #include <nane/numerics/ode/runge_kutta/methods.hpp>
 #include <nane/numerics/ode/runge_kutta/runge_kutta.hpp>
 
-int main()
+int main(int argc, char* argv[])
 {
     const auto derivative = [](double t, double x) { return -t * t * x; };
 
