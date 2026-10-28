@@ -17,6 +17,8 @@ and minimal abstraction around the underlying mathematics.
 The library is intended both for scientific computing and for studying how
 numerical methods are implemented.
 
+
+
 <div class="nane-links">
 
 [API Reference](topics.html) ·
