@@ -9,12 +9,6 @@
         />
 
         <tab
-            type="user"
-            url="@ref tutorials"
-            title="Tutorials"
-        />
-
-        <tab
             type="topics"
             visible="yes"
             title="API Reference"

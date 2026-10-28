@@ -17,13 +17,6 @@ and minimal abstraction around the underlying mathematics.
 The library is intended both for scientific computing and for studying how
 numerical methods are implemented.
 
-## Start here
-
-New to Nane? Begin with @ref getting_started "Getting Started", then continue
-with @ref cmake_integration "Using Nane with CMake" or the numerical tutorials.
-
-<br><br>
-
 <div class="nane-links">
 
 @ref tutorials "Tutorials" ·

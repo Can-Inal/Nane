@@ -1,5 +1,12 @@
+.contents:has(.nane-links) {
+    display: flex;
+    flex-direction: column;
+}
+
 .nane-links {
-    margin-top: 2rem;
+    margin-top: auto;
+    padding-top: 3rem;
+
     font-size: 1.05rem;
     font-weight: 600;
 }
