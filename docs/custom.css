@@ -1,11 +1,11 @@
-.contents:has(.nane-links) {
-    display: flex;
-    flex-direction: column;
-}
-
 .nane-links {
-    margin-top: auto;
-    padding-top: 3rem;
+    position: fixed;
+
+    left: 50%;
+    bottom: 3.5rem;
+
+    width: min(1100px, calc(100% - 2rem));
+    transform: translateX(-50%);
 
     font-size: 1.05rem;
     font-weight: 600;
@@ -35,9 +35,7 @@ body {
 }
 
 /*
- * Doxygen places the page contents and footer inside #doc-content.
- * Let it fill the remaining viewport height so short pages still place
- * the footer at the bottom of the screen.
+ * Let the main Doxygen content fill the available page height.
  */
 #doc-content {
     flex: 1;
@@ -83,4 +81,18 @@ address.footer {
 
 div.fragment {
     border-radius: 8px;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Small-height fallback */
+/* -------------------------------------------------------------------------- */
+
+@media (max-height: 650px) {
+    .nane-links {
+        position: static;
+
+        width: auto;
+        margin-top: 3rem;
+        transform: none;
+    }
 }
