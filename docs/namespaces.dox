@@ -5,7 +5,7 @@
 
 /**
  * @namespace nane::calculus
- * @brief Numerical differentiation and related algorithms.
+ * @brief Numerical differentiation, integration, and related algorithms.
  */
 
 /**

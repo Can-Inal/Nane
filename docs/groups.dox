@@ -1,6 +1,6 @@
 /**
  * @defgroup calculus Calculus
- * @brief Numerical differentiation and related algorithms.
+ * @brief Numerical differentiation, integration, and related algorithms.
  */
 
 /**
@@ -17,4 +17,3 @@
  * @defgroup ode Ordinary Differential Equations
  * @brief Numerical methods and utilities for ordinary differential equations.
  */
-

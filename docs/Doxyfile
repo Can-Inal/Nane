@@ -14,7 +14,8 @@ OUTPUT_DIRECTORY       = build/docs
 
 INPUT                  = docs/mainpage.dox \
                          docs/groups.dox \
-			 docs/namespaces.dox \
+                         docs/namespaces.dox \
+                         docs/tutorials \
                          include \
                          src
 
@@ -22,7 +23,8 @@ RECURSIVE              = YES
 
 FILE_PATTERNS          = *.hpp \
                          *.cpp \
-                         *.dox
+                         *.dox \
+                         *.md
 
 EXCLUDE_PATTERNS       = */vendor/* \
                          */build/*
