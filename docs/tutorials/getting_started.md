@@ -104,11 +104,7 @@ int main()
 
     const auto problem = nane::ode::ivp(system, initial_value);
 
-    [[maybe_unused]] const auto solution =
-        nane::ode::solve(
-            problem,
-            nane::ode::methods::heun,
-            {0.0, 10.0, 1001});
+    [[maybe_unused]] const auto solution = nane::ode::solve(problem, nane::ode::methods::heun, {0.0, 10.0, 1001});
 }
 ```
 

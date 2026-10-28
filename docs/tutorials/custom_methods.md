@@ -53,11 +53,7 @@ const nane::ode::butcher_table method{
 It can be passed directly to the generic ODE interface:
 
 ```cpp
-const auto solution =
-    nane::ode::solve(
-        problem,
-        method,
-        {0.0, 10.0, 1001});
+const auto solution = nane::ode::solve(problem, method, {0.0, 10.0, 1001});
 ```
 
 For adaptive integration, provide an embedded set of weights as part of the
@@ -91,11 +87,7 @@ const nane::calculus::stencil central_first{
 and can be applied with:
 
 ```cpp
-const double derivative =
-    nane::calculus::differentiate(
-        function,
-        point,
-        central_first);
+const double derivative = nane::calculus::differentiate(function, point, central_first);
 ```
 
 The derivative order, step size, offsets, and weights remain explicit.
@@ -115,11 +107,7 @@ const nane::calculus::quadrature_rule trapezoidal{
 and used on any interval:
 
 ```cpp
-const double integral =
-    nane::calculus::integrate(
-        function,
-        trapezoidal,
-        {0.0, 1.0});
+const double integral = nane::calculus::integrate(function, trapezoidal, {0.0, 1.0});
 ```
 
 For example, the two-point Gauss–Legendre rule on @f$[0,1]@f$ has nodes

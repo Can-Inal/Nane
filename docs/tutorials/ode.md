@@ -82,11 +82,7 @@ const auto problem = nane::ode::ivp(system, initial_value);
 A grid with a point count specifies fixed time points:
 
 ```cpp
-const auto solution =
-    nane::ode::solve(
-        problem,
-        nane::ode::methods::heun,
-        {0.0, 10.0, 1001});
+const auto solution = nane::ode::solve(problem, nane::ode::methods::heun, {0.0, 10.0, 1001});
 ```
 
 Here the interval has 1001 points, hence 1000 subintervals and

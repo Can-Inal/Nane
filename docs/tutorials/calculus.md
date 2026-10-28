@@ -28,22 +28,14 @@ const auto function = [](double x)
     return std::sin(x);
 };
 
-const double derivative =
-    nane::calculus::differentiate(
-        function,
-        1.0,
-        nane::calculus::stencils::central_first(1e-6));
+const double derivative = nane::calculus::differentiate(function, 1.0, nane::calculus::stencils::central_first(1e-6));
 ```
 
 The same executor can approximate higher derivatives when the stencil has the
 corresponding derivative order:
 
 ```cpp
-const double second_derivative =
-    nane::calculus::differentiate(
-        function,
-        1.0,
-        nane::calculus::stencils::central_second(1e-4));
+const double second_derivative = nane::calculus::differentiate(function, 1.0, nane::calculus::stencils::central_second(1e-4));
 ```
 
 For a vector-valued function
@@ -91,21 +83,14 @@ const auto function = [](double x)
     return std::sin(x);
 };
 
-const double value =
-    nane::calculus::integrate(
-        function,
-        nane::calculus::rules::gauss_legendre_2,
-        {0.0, 3.141592653589793});
+const double value = nane::calculus::integrate(function, nane::calculus::rules::gauss_legendre_2, {0.0, 3.141592653589793});
 ```
 
 If the grid contains a point count, the rule is applied separately on every
 subinterval and the contributions are summed:
 
 ```cpp
-nane::calculus::integrate(
-    function,
-    nane::calculus::rules::simpson,
-    {0.0, 3.141592653589793, 101});
+nane::calculus::integrate(function, nane::calculus::rules::simpson, {0.0, 3.141592653589793, 101});
 ```
 
 This gives the same `grid<1>` type two natural meanings:
