@@ -11,6 +11,8 @@ namespace nane::calculus
 {
 
     /**
+     * @ingroup calculus
+     *
      * @brief Determines the degree of exactness of a quadrature rule.
      *
      * For an interval @f$[0, 1]@f$, the quadrature rule is applied to the test function
