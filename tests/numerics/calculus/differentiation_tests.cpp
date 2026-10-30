@@ -9,18 +9,15 @@ TEST_CASE("Scalar first derivative with different stencils", "[calculus][differe
     const auto test_function = [](double x) { return x * x * x; };
     const double point = 2.0;
 
-    const double expected = 12.0;
-
     const double step_size = 1e-6;
 
-    REQUIRE(nane::calculus::differentiate(test_function, point, nane::calculus::stencils::backward_first(step_size)) ==
-            Catch::Approx(expected).margin(1e-5));
+    const auto backward_first = nane::calculus::differentiate(test_function, point, nane::calculus::stencils::backward_first(step_size));
+    const auto central_first = nane::calculus::differentiate(test_function, point, nane::calculus::stencils::central_first(step_size));
+    const auto forward_first = nane::calculus::differentiate(test_function, point, nane::calculus::stencils::forward_first(step_size));
 
-    REQUIRE(nane::calculus::differentiate(test_function, point, nane::calculus::stencils::central_first(step_size)) ==
-            Catch::Approx(expected).margin(1e-5));
-
-    REQUIRE(nane::calculus::differentiate(test_function, point, nane::calculus::stencils::forward_first(step_size)) ==
-            Catch::Approx(expected).margin(1e-5));
+    REQUIRE(backward_first == Catch::Approx(12.0).margin(1e-5));
+    REQUIRE(central_first == Catch::Approx(12.0).margin(1e-5));
+    REQUIRE(forward_first == Catch::Approx(12.0).margin(1e-5));
 }
 
 TEST_CASE("Scalar second derivative with central difference", "[calculus][differentiation][scalar second derivative]")
@@ -28,12 +25,11 @@ TEST_CASE("Scalar second derivative with central difference", "[calculus][differ
     const auto test_function = [](double x) { return x * x * x; };
     const double point = 2.0;
 
-    const double expected = 12.0;
-
     const double step_size = 1e-4;
 
-    REQUIRE(nane::calculus::differentiate(test_function, point, nane::calculus::stencils::central_second(step_size)) ==
-            Catch::Approx(expected).margin(1e-5));
+    const auto central_second = nane::calculus::differentiate(test_function, point, nane::calculus::stencils::central_second(step_size));
+
+    REQUIRE(central_second == Catch::Approx(12.0).margin(1e-5));
 }
 
 TEST_CASE("Jacobian of vector-valued function", "[calculus][differentiation][jacobian]")
