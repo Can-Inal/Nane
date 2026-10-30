@@ -54,30 +54,12 @@ namespace nane::ode
             const std::size_t stage_count = table.stages();
             const std::size_t dimension = initial_value.size();
 
-            // Create a zero vector with the same dimension as the state.
-            //
-            // Fixed-size vectors already know their dimension, while dynamic
-            // vectors need it at runtime.
-            const auto make_state = [&]()
-            {
-                nane::vector<Dimension> state;
-
-                if constexpr (Dimension == nane::dynamic)
-                    state = nane::vector<>(dimension);
-
-                state.fill(0.0);
-
-                return state;
-            };
-
             // Compute all Runge-Kutta stages for one time step.
             //
             // Each column of the stage matrix contains one stage vector.
             const auto compute_stages = [&](double current_time, const nane::vector<Dimension>& current_state, double tau)
             {
-                nane::matrix<Dimension, nane::dynamic> stage(dimension, stage_count);
-
-                stage.fill(0.0);
+                nane::matrix<Dimension, nane::dynamic> stage(dimension, stage_count, 0.0);
 
                 // Explicit methods compute the stages one after another.
                 if (table.is_explicit())
@@ -87,7 +69,7 @@ namespace nane::ode
                         // Weighted sum of the previously computed stages:
                         //
                         // stage_sum = sum_l beta_jl * k_l
-                        auto stage_sum = make_state();
+                        nane::vector<Dimension> stage_sum(dimension, 0.0);
 
                         for (std::size_t l = 0; l < j; ++l)
                         {
@@ -127,7 +109,7 @@ namespace nane::ode
                             // Weighted sum of all stage vectors:
                             //
                             // stage_sum = sum_l beta_jl * k_l
-                            auto stage_sum = make_state();
+                            nane::vector<Dimension> stage_sum(dimension, 0.0);
 
                             for (std::size_t l = 0; l < stage_count; ++l)
                             {

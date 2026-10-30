@@ -39,7 +39,6 @@ namespace nane::nonlinear
      *
      * where @f$\varepsilon@f$ is the specified tolerance.
      *
-     * @tparam Function Type of the fixed-point mapping.
      *
      * @param function Fixed-point mapping @f$F(x)@f$.
      * @param initial_guess Initial approximation of the fixed point.
@@ -51,8 +50,7 @@ namespace nane::nonlinear
      * @throws std::runtime_error If the iteration does not converge within
      * the maximum number of iterations.
      */
-    template <typename Function>
-    [[nodiscard]] double fixed_point(Function&& function, double initial_guess, double tolerance = 1e-10, int max_iteration = 100)
+    [[nodiscard]] inline double fixed_point(auto&& function, double initial_guess, double tolerance = 1e-10, int max_iteration = 100)
     {
         auto current = initial_guess;
 
@@ -104,7 +102,6 @@ namespace nane::nonlinear
      *
      * where @f$\varepsilon@f$ is the specified tolerance.
      *
-     * @tparam Function Type of the fixed-point mapping.
      * @tparam Dimension Vector dimension.
      *
      * @param function Fixed-point mapping @f$\mathbf{F}(\mathbf{x})@f$.
@@ -117,8 +114,8 @@ namespace nane::nonlinear
      * @throws std::runtime_error If the iteration does not converge within
      * the maximum number of iterations.
      */
-    template <typename Function, std::size_t Dimension>
-    [[nodiscard]] nane::vector<Dimension> fixed_point(Function&& function, const nane::vector<Dimension>& initial_guess, double tolerance = 1e-10,
+    template <std::size_t Dimension>
+    [[nodiscard]] nane::vector<Dimension> fixed_point(auto&& function, const nane::vector<Dimension>& initial_guess, double tolerance = 1e-10,
                                                       int max_iterations = 100)
     {
         auto current = initial_guess;

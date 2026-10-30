@@ -29,16 +29,13 @@ namespace nane::calculus
      * where @f$c_i@f$ are the stencil offsets, @f$w_i@f$ are the
      * corresponding weights, and @f$h@f$ is the step size.
      *
-     * @tparam Function Type of the function.
-     *
      * @param function Function to differentiate.
      * @param point Point at which the derivative is approximated.
      * @param stencil Finite-difference stencil.
      *
      * @return Approximation of the derivative.
      */
-    template <typename Function>
-    [[nodiscard]] double differentiate(Function&& function, double point, const nane::calculus::stencil& stencil)
+    [[nodiscard]] inline double differentiate(auto&& function, double point, const nane::calculus::stencil& stencil)
     {
         const auto& offsets = stencil.offsets();
         const auto& weights = stencil.weights();
@@ -88,16 +85,13 @@ namespace nane::calculus
      *
      * @return Approximation of the Jacobian matrix.
      */
-    template <typename Function, std::size_t Dimension>
-    [[nodiscard]] auto differentiate(Function&& function, const nane::vector<Dimension>& point, const nane::calculus::stencil& stencil)
+    template <std::size_t Dimension>
+    [[nodiscard]] auto differentiate(auto&& function, const nane::vector<Dimension>& point, const nane::calculus::stencil& stencil)
     {
         NANE_REQUIRE(stencil.derivative_order() == 1, "vector differentiation requires a first-derivative stencil");
 
-        const auto value = function(point);
-        constexpr std::size_t output_dimension = std::remove_cvref_t<decltype(value)>::dimension();
-        nane::matrix<output_dimension, Dimension> result(value.size(), point.size());
-
-        result.fill(0.0);
+        const auto value = function(point); // evaluate the function once to get the .size() dimension info.
+        nane::matrix<> result(value.size(), point.size());
 
         const auto& offsets = stencil.offsets();
         const auto& weights = stencil.weights();
@@ -105,26 +99,24 @@ namespace nane::calculus
         const double step_size = stencil.step_size();
 
         // Differentiate with respect to each input component.
+        // Column.
         for (std::size_t j = 0; j < point.size(); ++j)
         {
+            // Stencil point.
             for (std::size_t k = 0; k < stencil.size(); ++k)
             {
-                auto shifted = point;
+                auto x = point;
 
-                shifted[j] += static_cast<double>(offsets[k]) * step_size;
-
-                const auto shifted_value = function(shifted);
-
-                NANE_REQUIRE(shifted_value.size() == value.size(), "function output dimension must remain constant");
+                x[j] += static_cast<double>(offsets[k]) * step_size;
+                const auto next = function(x);
 
                 for (std::size_t i = 0; i < value.size(); ++i)
-                {
-                    result(i, j) += weights[k] * shifted_value[i];
-                }
+                    result(i, j) += weights[k] * next[i];
             }
 
+            const double scale = std::pow(step_size, static_cast<double>(stencil.derivative_order()));
             for (std::size_t i = 0; i < value.size(); ++i)
-                result(i, j) /= step_size;
+                result(i, j) /= scale;
         }
 
         return result;

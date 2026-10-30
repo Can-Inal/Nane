@@ -23,34 +23,34 @@ namespace nane
     template <std::size_t Dimension = dynamic>
     class vector
     {
-    private:
-        static constexpr bool s_Dynamic = Dimension == dynamic;
-
     public:
         vector() = default;
 
         /**
-         * @brief Constructs a dynamic vector with the given dimension.
+         * @brief Constructs a vector with the given dimension.
+         *
+         * For a fixed-size vector, the given dimension must match the
+         * compile-time dimension.
          *
          * @param dimension Vector dimension.
          */
         explicit vector(std::size_t dimension)
-            requires(s_Dynamic)
-            : m_Data(dimension)
         {
+            if constexpr (s_Dynamic)
+                m_Data.resize(dimension);
+            else
+                NANE_REQUIRE(dimension == Dimension, "vector dimension does not match");
         }
 
         /**
-         * @brief Constructs a dynamic vector with the given dimension
-         * and initial value.
+         * @brief Constructs a vector with the given dimension and value.
          *
          * @param dimension Vector dimension.
          * @param value Initial value of every component.
          */
-        vector(std::size_t dimension, double value)
-            requires(s_Dynamic)
-            : m_Data(dimension, value)
+        vector(std::size_t dimension, double value) : vector(dimension)
         {
+            fill(value);
         }
 
         /**
@@ -116,10 +116,7 @@ namespace nane
         {
             NANE_REQUIRE(size() == other.size(), "vector dimensions must match");
 
-            vector result;
-
-            if constexpr (s_Dynamic)
-                result = vector(size());
+            vector result(size());
 
             for (std::size_t i = 0; i < size(); ++i)
                 result[i] = m_Data[i] + other[i];
@@ -134,10 +131,7 @@ namespace nane
         {
             NANE_REQUIRE(size() == other.size(), "vector dimensions must match");
 
-            vector result;
-
-            if constexpr (s_Dynamic)
-                result = vector(size());
+            vector result(size());
 
             for (std::size_t i = 0; i < size(); ++i)
                 result[i] = m_Data[i] - other[i];
@@ -150,10 +144,7 @@ namespace nane
          */
         [[nodiscard]] vector operator*(double scalar) const
         {
-            vector result;
-
-            if constexpr (s_Dynamic)
-                result = vector(size());
+            vector result(size());
 
             for (std::size_t i = 0; i < size(); ++i)
                 result[i] = m_Data[i] * scalar;
@@ -166,10 +157,7 @@ namespace nane
          */
         [[nodiscard]] vector operator/(double scalar) const
         {
-            vector result;
-
-            if constexpr (s_Dynamic)
-                result = vector(size());
+            vector result(size());
 
             for (std::size_t i = 0; i < size(); ++i)
                 result[i] = m_Data[i] / scalar;
@@ -248,7 +236,11 @@ namespace nane
         }
 
     private:
-        using storage_type = std::conditional_t<s_Dynamic, std::vector<double>, std::array<double, s_Dynamic ? 0 : Dimension>>;
+        static constexpr bool s_Dynamic = Dimension == dynamic;
+        static constexpr std::size_t s_StaticSize = s_Dynamic ? 0 : Dimension;
+
+        using storage_type = std::conditional_t<s_Dynamic, std::vector<double>, std::array<double, s_StaticSize>>;
+
         storage_type m_Data{};
     };
 

@@ -38,6 +38,12 @@ namespace nane
 
         /**
          * @brief Constructs a matrix with the given dimensions.
+         *
+         * For fixed dimensions, the given shape must match the
+         * compile-time dimensions.
+         *
+         * @param rows Number of rows.
+         * @param columns Number of columns.
          */
         matrix(std::size_t rows, std::size_t columns)
         {
@@ -47,11 +53,13 @@ namespace nane
         /**
          * @brief Constructs a matrix with the given dimensions
          * and initial value.
+         *
+         * @param rows Number of rows.
+         * @param columns Number of columns.
+         * @param value Initial value of every matrix entry.
          */
-        matrix(std::size_t rows, std::size_t columns, double value)
+        matrix(std::size_t rows, std::size_t columns, double value) : matrix(rows, columns)
         {
-            set_shape(rows, columns);
-
             fill(value);
         }
 
@@ -64,9 +72,7 @@ namespace nane
             const std::size_t columns = rows == 0 ? 0 : values.begin()->size();
 
             for (const auto& row : values)
-            {
                 NANE_REQUIRE(row.size() == columns, "matrix rows must have equal length");
-            }
 
             set_shape(rows, columns);
 
@@ -144,17 +150,12 @@ namespace nane
         {
             NANE_REQUIRE(rows() == other.rows() && columns() == other.columns(), "matrix dimensions must match");
 
-            matrix result;
-
-            if constexpr (s_Dynamic)
-                result = matrix(rows(), columns());
+            matrix result(rows(), columns());
 
             for (std::size_t i = 0; i < rows(); ++i)
             {
                 for (std::size_t j = 0; j < columns(); ++j)
-                {
                     result(i, j) = (*this)(i, j) + other(i, j);
-                }
             }
 
             return result;
@@ -167,17 +168,12 @@ namespace nane
         {
             NANE_REQUIRE(rows() == other.rows() && columns() == other.columns(), "matrix dimensions must match");
 
-            matrix result;
-
-            if constexpr (s_Dynamic)
-                result = matrix(rows(), columns());
+            matrix result(rows(), columns());
 
             for (std::size_t i = 0; i < rows(); ++i)
             {
                 for (std::size_t j = 0; j < columns(); ++j)
-                {
                     result(i, j) = (*this)(i, j) - other(i, j);
-                }
             }
 
             return result;
@@ -188,17 +184,12 @@ namespace nane
          */
         [[nodiscard]] matrix operator*(double scalar) const
         {
-            matrix result;
-
-            if constexpr (s_Dynamic)
-                result = matrix(rows(), columns());
+            matrix result(rows(), columns());
 
             for (std::size_t i = 0; i < rows(); ++i)
             {
                 for (std::size_t j = 0; j < columns(); ++j)
-                {
                     result(i, j) = (*this)(i, j) * scalar;
-                }
             }
 
             return result;
@@ -209,17 +200,12 @@ namespace nane
          */
         [[nodiscard]] matrix operator/(double scalar) const
         {
-            matrix result;
-
-            if constexpr (s_Dynamic)
-                result = matrix(rows(), columns());
+            matrix result(rows(), columns());
 
             for (std::size_t i = 0; i < rows(); ++i)
             {
                 for (std::size_t j = 0; j < columns(); ++j)
-                {
                     result(i, j) = (*this)(i, j) / scalar;
-                }
             }
 
             return result;
@@ -234,19 +220,12 @@ namespace nane
         {
             NANE_REQUIRE(columns() == value.size(), "matrix and vector dimensions must match");
 
-            vector<Rows> result;
-
-            if constexpr (Rows == dynamic)
-                result = vector<>(rows());
-
-            result.fill(0.0);
+            vector<Rows> result(rows(), 0.0);
 
             for (std::size_t i = 0; i < rows(); ++i)
             {
                 for (std::size_t j = 0; j < columns(); ++j)
-                {
                     result[i] += (*this)(i, j) * value[j];
-                }
             }
 
             return result;
@@ -276,21 +255,13 @@ namespace nane
         }
 
     private:
-        static constexpr bool s_Dynamic = Rows == dynamic || Columns == dynamic;
-        static constexpr std::size_t s_StaticSize = s_Dynamic ? 0 : Rows * Columns;
-        using storage_type = std::conditional_t<s_Dynamic, std::vector<double>, std::array<double, s_StaticSize>>;
-
         void set_shape(std::size_t rows, std::size_t columns)
         {
             if constexpr (Rows != dynamic)
-            {
                 NANE_REQUIRE(rows == Rows, "matrix row count does not match");
-            }
 
             if constexpr (Columns != dynamic)
-            {
                 NANE_REQUIRE(columns == Columns, "matrix column count does not match");
-            }
 
             m_Rows = rows;
             m_Columns = columns;
@@ -298,6 +269,12 @@ namespace nane
             if constexpr (s_Dynamic)
                 m_Data.assign(m_Rows * m_Columns, 0.0);
         }
+
+    private:
+        static constexpr bool s_Dynamic = Rows == dynamic || Columns == dynamic;
+        static constexpr std::size_t s_StaticSize = s_Dynamic ? 0 : Rows * Columns;
+
+        using storage_type = std::conditional_t<s_Dynamic, std::vector<double>, std::array<double, s_StaticSize>>;
 
         std::size_t m_Rows = Rows == dynamic ? 0 : Rows;
         std::size_t m_Columns = Columns == dynamic ? 0 : Columns;

@@ -27,7 +27,6 @@ namespace nane::nonlinear
      * using Newton iteration. The derivative is approximated using
      * a centered finite-difference stencil.
      *
-     * @tparam Function Type of the nonlinear function.
      *
      * @param function Nonlinear function.
      * @param initial_guess Initial approximation of the root.
@@ -36,8 +35,7 @@ namespace nane::nonlinear
      *
      * @return Approximation of the root.
      */
-    template <typename Function>
-    [[nodiscard]] double newton(Function&& function, double initial_guess, double tolerance = 1e-10, int max_iteration = 100)
+    [[nodiscard]] inline double newton(auto&& function, double initial_guess, double tolerance = 1e-10, int max_iteration = 100)
     {
         const auto derivative_stencil = nane::calculus::stencils::central_first(1e-6);
 
@@ -79,7 +77,6 @@ namespace nane::nonlinear
      * using Newton iteration. The Jacobian is approximated by applying
      * a centered finite-difference stencil in each coordinate direction.
      *
-     * @tparam Function Type of the nonlinear function.
      * @tparam Dimension Vector dimension.
      *
      * @param function Nonlinear function.
@@ -89,8 +86,8 @@ namespace nane::nonlinear
      *
      * @return Approximation of the root.
      */
-    template <typename Function, std::size_t Dimension>
-    [[nodiscard]] nane::vector<Dimension> newton(Function&& function, const nane::vector<Dimension>& initial_guess, double tolerance = 1e-10,
+    template <std::size_t Dimension>
+    [[nodiscard]] nane::vector<Dimension> newton(auto&& function, const nane::vector<Dimension>& initial_guess, double tolerance = 1e-10,
                                                  int max_iteration = 100)
     {
         const auto derivative_stencil = nane::calculus::stencils::central_first(1e-6);

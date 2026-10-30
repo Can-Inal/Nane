@@ -29,16 +29,13 @@ namespace nane::calculus
      * If the grid has a prescribed point count, the rule is applied
      * separately on each grid subinterval and the results are summed.
      *
-     * @tparam Function Type of the integrand.
-     *
      * @param function Function to integrate.
      * @param rule Quadrature rule defined on the reference interval @f$[0,1]@f$.
      * @param interval Integration interval or prescribed integration grid.
      *
      * @return Approximation of the definite integral.
      */
-    template <typename Function>
-    [[nodiscard]] double integrate(Function&& function, const nane::calculus::quadrature_rule& rule, const nane::geometry::grid<1>& interval)
+    [[nodiscard]] inline double integrate(auto&& function, const nane::calculus::quadrature_rule& rule, const nane::geometry::grid<1>& interval)
     {
         const auto& nodes = rule.nodes();
         const auto& weights = rule.weights();

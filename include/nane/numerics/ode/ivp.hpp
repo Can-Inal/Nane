@@ -32,9 +32,6 @@ namespace nane::ode
     class ivp
     {
     public:
-        using derivative_type = Derivative;
-        using initial_value_type = InitialValue;
-
         /**
          * @brief Constructs an initial value problem.
          *
@@ -42,7 +39,7 @@ namespace nane::ode
          * equation.
          * @param initial_value Initial value of the solution.
          */
-        ivp(Derivative derivative, InitialValue initial_value) : derivative_(std::move(derivative)), initial_value_(std::move(initial_value))
+        ivp(Derivative derivative, InitialValue initial_value) : m_Derivative(std::move(derivative)), m_InitialValue(std::move(initial_value))
         {
         }
 
@@ -53,7 +50,7 @@ namespace nane::ode
          */
         [[nodiscard]] const Derivative& derivative() const noexcept
         {
-            return derivative_;
+            return m_Derivative;
         }
 
         /**
@@ -63,12 +60,12 @@ namespace nane::ode
          */
         [[nodiscard]] const InitialValue& initial_value() const noexcept
         {
-            return initial_value_;
+            return m_InitialValue;
         }
 
     private:
-        Derivative derivative_;
-        InitialValue initial_value_;
+        Derivative m_Derivative;
+        InitialValue m_InitialValue;
     };
 
 } // namespace nane::ode
