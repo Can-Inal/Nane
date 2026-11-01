@@ -133,6 +133,82 @@ namespace nane
             return s_Dynamic;
         }
 
+        /**
+         * @brief Constructs a matrix from a collection of column vectors.
+         */
+        template <std::size_t Dimension>
+        [[nodiscard]] static matrix from_columns(const std::vector<nane::vector<Dimension>>& columns)
+        {
+            const std::size_t row_count = columns.empty() ? (Rows == dynamic ? 0 : Rows) : columns.front().size();
+
+            matrix result(row_count, columns.size());
+
+            for (std::size_t column = 0; column < columns.size(); ++column)
+            {
+                for (std::size_t row = 0; row < row_count; ++row)
+                    result(row, column) = columns[column][row];
+            }
+
+            return result;
+        }
+
+        /**
+         * @brief Constructs a matrix from flattened column values.
+         */
+        template <std::size_t Dimension>
+        [[nodiscard]] static matrix from_columns(const nane::vector<Dimension>& values, std::size_t column_count)
+        {
+            NANE_REQUIRE(column_count > 0, "column count must be positive");
+            NANE_REQUIRE(values.size() % column_count == 0, "flattened values cannot be divided into equal columns");
+
+            const std::size_t row_count = values.size() / column_count;
+
+            matrix result(row_count, column_count);
+
+            for (std::size_t column = 0; column < column_count; ++column)
+            {
+                for (std::size_t row = 0; row < row_count; ++row)
+                    result(row, column) = values[column * row_count + row];
+            }
+
+            return result;
+        }
+
+        /**
+         * @brief Constructs a matrix from a collection of row vectors.
+         */
+        template <std::size_t Dimension>
+        [[nodiscard]] static matrix from_rows(const std::vector<nane::vector<Dimension>>& rows)
+        {
+            const std::size_t column_count = rows.empty() ? (Columns == dynamic ? 0 : Columns) : rows.front().size();
+
+            matrix result(rows.size(), column_count);
+
+            for (std::size_t row = 0; row < rows.size(); ++row)
+            {
+                for (std::size_t column = 0; column < column_count; ++column)
+                    result(row, column) = rows[row][column];
+            }
+
+            return result;
+        }
+
+        /**
+         * @brief Flattens the matrix column by column.
+         */
+        [[nodiscard]] nane::vector<> flatten_columns() const
+        {
+            nane::vector<> result(rows() * columns());
+
+            for (std::size_t column = 0; column < columns(); ++column)
+            {
+                for (std::size_t row = 0; row < rows(); ++row)
+                    result[column * rows() + row] = (*this)(row, column);
+            }
+
+            return result;
+        }
+
         [[nodiscard]] double& operator()(std::size_t row, std::size_t column) noexcept
         {
             return m_Data[row * m_Columns + column];
@@ -237,6 +313,19 @@ namespace nane
         void fill(double value)
         {
             std::fill(m_Data.begin(), m_Data.end(), value);
+        }
+
+        /**
+         * @brief Sets a matrix column from a vector.
+         */
+        template <std::size_t Dimension>
+        void set_column(std::size_t index, const nane::vector<Dimension>& column)
+        {
+            NANE_REQUIRE(index < columns(), "matrix column index out of range");
+            NANE_REQUIRE(column.size() == rows(), "column size must match matrix row count");
+
+            for (std::size_t row = 0; row < rows(); ++row)
+                (*this)(row, index) = column[row];
         }
 
         [[nodiscard]] double* data() noexcept
