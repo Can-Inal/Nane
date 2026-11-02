@@ -1,9 +1,18 @@
 #pragma once
 
+// Core
 #include "nane/error.hpp"
+#include "nane/version.hpp"
+
+// Geometry
 #include "nane/geometry/grid.hpp"
+#include "nane/geometry/sample.hpp"
+
+// Math
 #include "nane/math/matrix.hpp"
 #include "nane/math/vector.hpp"
+
+// numerics
 #include "nane/numerics/calculus/differentiation/differentiate.hpp"
 #include "nane/numerics/calculus/differentiation/stencil.hpp"
 #include "nane/numerics/calculus/differentiation/stencils.hpp"
@@ -20,4 +29,3 @@
 #include "nane/numerics/ode/runge_kutta/stability.hpp"
 #include "nane/numerics/ode/solution.hpp"
 #include "nane/numerics/ode/solve.hpp"
-#include "nane/version.hpp"
