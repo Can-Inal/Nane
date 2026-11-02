@@ -16,4 +16,9 @@
 /**
  * @defgroup ode Ordinary Differential Equations
  * @brief Numerical methods and utilities for ordinary differential equations.
+ */ 
+
+/**
+ * @defgroup pde Partial Differential Equations
+ * @brief Numerical methods and utilities for partial differential equations.
  */

@@ -12,15 +12,19 @@
 #include "nane/math/matrix.hpp"
 #include "nane/math/vector.hpp"
 
-// numerics
+// numerics/calculus
 #include "nane/numerics/calculus/differentiation/differentiate.hpp"
 #include "nane/numerics/calculus/differentiation/stencil.hpp"
 #include "nane/numerics/calculus/differentiation/stencils.hpp"
 #include "nane/numerics/calculus/integration/integrate.hpp"
 #include "nane/numerics/calculus/integration/quadrature_rule.hpp"
 #include "nane/numerics/calculus/integration/rules.hpp"
+
+// numerics/nonlinear
 #include "nane/numerics/nonlinear/fixed_point.hpp"
 #include "nane/numerics/nonlinear/newton.hpp"
+
+// numerics/ode
 #include "nane/numerics/ode/ivp.hpp"
 #include "nane/numerics/ode/runge_kutta/butcher_table.hpp"
 #include "nane/numerics/ode/runge_kutta/methods.hpp"
@@ -29,3 +33,9 @@
 #include "nane/numerics/ode/runge_kutta/stability.hpp"
 #include "nane/numerics/ode/solution.hpp"
 #include "nane/numerics/ode/solve.hpp"
+
+// numerics/pde
+#include "nane/numerics/pde/boundary_conditions.hpp"
+#include "nane/numerics/pde/ibvp.hpp"
+#include "nane/numerics/pde/solution.hpp"
+#include "nane/numerics/pde/solve.hpp"

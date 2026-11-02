@@ -21,4 +21,9 @@
 /**
  * @namespace nane::ode
  * @brief Numerical methods and utilities for ordinary differential equations.
+ */ 
+
+/**
+ * @namespace nane::pde 
+ * @brief Numerical methods and utilities for partial differential equations.
  */
