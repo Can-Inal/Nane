@@ -209,6 +209,21 @@ namespace nane
             return result;
         }
 
+        /**
+         * @brief Returns a column of the matrix.
+         */
+        [[nodiscard]] nane::vector<Rows> column(std::size_t index) const
+        {
+            NANE_REQUIRE(index < m_Columns, "matrix column index out of bounds");
+
+            nane::vector<Rows> result(m_Rows);
+
+            for (std::size_t i = 0; i < m_Rows; ++i)
+                result[i] = (*this)(i, index);
+
+            return result;
+        }
+
         [[nodiscard]] double& operator()(std::size_t row, std::size_t column) noexcept
         {
             return m_Data[row * m_Columns + column];

@@ -25,7 +25,7 @@ namespace nane::pde
      * supplied to the numerical method. The spatial grid is supplied
      * separately to the PDE solver.
      *
-     * @tparam Equation Type of the right-hand-side function.
+     * @tparam Equation Object describing how the local kernel is generated.
      * @tparam InitialState Type of the initial spatial state.
      * @tparam Dimension Number of spatial dimensions.
      */
