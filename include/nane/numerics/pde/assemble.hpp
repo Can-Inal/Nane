@@ -1,16 +1,19 @@
 #pragma once
 
 #include "nane/geometry/grid.hpp"
+#include "nane/math/sparse_matrix.hpp"
 #include "nane/numerics/pde/boundary_conditions.hpp"
 #include "nane/numerics/pde/finite_difference.hpp"
 
 #include <cstddef>
+#include <utility>
+#include <vector>
 
 namespace nane::pde
 {
     struct discrete_system
     {
-        nane::matrix<> matrix;
+        nane::sparse_matrix<> matrix;
         nane::vector<> rhs;
     };
 
@@ -35,19 +38,21 @@ namespace nane::pde
         const auto N = Nx * Ny;
 
         // clang-format off
-	const auto is_dirichlet_boundary = [&](std::size_t i, std::size_t j)
+        const auto is_dirichlet_boundary = [&](std::size_t i, std::size_t j)
         {
-            return (i == 0 && is_dirichlet(boundary_conditions.lower(0))) || (i == x_axis.size() - 1 && is_dirichlet(boundary_conditions.upper(0))) ||
-                   (j == 0 && is_dirichlet(boundary_conditions.lower(1))) || (j == y_axis.size() - 1 && is_dirichlet(boundary_conditions.upper(1)));
+            return (i == 0 && is_dirichlet(boundary_conditions.lower(0))) || (i == Nx - 1 && is_dirichlet(boundary_conditions.upper(0))) ||
+                   (j == 0 && is_dirichlet(boundary_conditions.lower(1))) || (j == Ny - 1 && is_dirichlet(boundary_conditions.upper(1)));
         };
 
         const auto index = [&](std::size_t i, std::size_t j)
-	{ 
-	    return j * x_axis.size() + i; 
-	};
+        {
+            return j * Nx + i;
+        };
         // clang-format on
 
-        nane::matrix A(N, N, 0.0);
+        std::vector<nane::sparse_matrix<>::entry> entries;
+        entries.reserve(N * kernel.size());
+
         nane::vector b(N, 0.0);
 
         for (std::size_t j = 0; j < Ny; ++j)
@@ -64,7 +69,9 @@ namespace nane::pde
                 {
                     for (std::size_t ki = 0; ki < kernel.rows(); ++ki)
                     {
-                        if (kernel(ki, kj) == 0.0)
+                        const double coefficient = kernel(ki, kj);
+
+                        if (coefficient == 0.0)
                             continue;
 
                         const int di = static_cast<int>(ki) - center_row;
@@ -77,49 +84,43 @@ namespace nane::pde
 
                         if (inside)
                         {
-                            A(row, index(static_cast<std::size_t>(ti), static_cast<std::size_t>(tj))) += kernel(ki, kj);
+                            entries.push_back({row, index(static_cast<std::size_t>(ti), static_cast<std::size_t>(tj)), coefficient});
                             continue;
                         }
 
-                        // Neumann X-axis
+                        // Neumann X-axis.
                         {
-                            // Lower boundary.
                             if (ti < 0)
                             {
                                 const auto q = std::get<nane::pde::neumann>(boundary_conditions.lower(0)).value;
 
-                                A(row, index(1, j)) += kernel(ki, kj);
-                                b[row] += kernel(ki, kj) * 2 * hx * q;
+                                entries.push_back({row, index(1, j), coefficient});
+                                b[row] += coefficient * 2.0 * hx * q;
                             }
-
-                            // Upper boundary.
                             else if (ti >= static_cast<int>(Nx))
                             {
                                 const auto q = std::get<nane::pde::neumann>(boundary_conditions.upper(0)).value;
 
-                                A(row, index(Nx - 2, j)) += kernel(ki, kj);
-                                b[row] += kernel(ki, kj) * 2 * hx * q;
+                                entries.push_back({row, index(Nx - 2, j), coefficient});
+                                b[row] += coefficient * 2.0 * hx * q;
                             }
                         }
 
-                        // Neumann Y-axis
+                        // Neumann Y-axis.
                         {
-                            // Lower boundary.
                             if (tj < 0)
                             {
                                 const auto q = std::get<nane::pde::neumann>(boundary_conditions.lower(1)).value;
 
-                                A(row, index(i, 1)) += kernel(ki, kj);
-                                b[row] += kernel(ki, kj) * 2 * hy * q;
+                                entries.push_back({row, index(i, 1), coefficient});
+                                b[row] += coefficient * 2.0 * hy * q;
                             }
-
-                            // Upper boundary.
                             else if (tj >= static_cast<int>(Ny))
                             {
                                 const auto q = std::get<nane::pde::neumann>(boundary_conditions.upper(1)).value;
 
-                                A(row, index(i, Ny - 2)) += kernel(ki, kj);
-                                b[row] += kernel(ki, kj) * 2 * hy * q;
+                                entries.push_back({row, index(i, Ny - 2), coefficient});
+                                b[row] += coefficient * 2.0 * hy * q;
                             }
                         }
                     }
@@ -127,7 +128,13 @@ namespace nane::pde
             }
         }
 
-        return discrete_system{A, b};
+        nane::sparse_matrix<> A(N, N);
+        A.set_entries(entries);
+
+        return discrete_system{
+            std::move(A),
+            std::move(b),
+        };
     }
 
 } // namespace nane::pde
