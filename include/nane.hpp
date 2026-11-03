@@ -35,7 +35,9 @@
 #include "nane/numerics/ode/solve.hpp"
 
 // numerics/pde
+#include "nane/numerics/pde/assemble.hpp"
 #include "nane/numerics/pde/boundary_conditions.hpp"
+#include "nane/numerics/pde/finite_difference.hpp"
 #include "nane/numerics/pde/ibvp.hpp"
 #include "nane/numerics/pde/solution.hpp"
 #include "nane/numerics/pde/solve.hpp"
