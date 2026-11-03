@@ -1,7 +1,6 @@
 #pragma once
 
 #include "nane/geometry/grid.hpp"
-#include "nane/math/vector.hpp"
 
 #include <cstddef>
 #include <vector>
@@ -22,8 +21,7 @@ namespace nane::pde
     struct solution
     {
         nane::geometry::grid<Dimension> spatial_grid;
-        nane::vector<> time;
+        std::vector<double> time;
         std::vector<State> values;
     };
-
 } // namespace nane::pde
