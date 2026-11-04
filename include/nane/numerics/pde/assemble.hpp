@@ -17,6 +17,8 @@ namespace nane::pde
         nane::vector<> rhs;
     };
 
+    // NOTE NANE: currently supports only 1 ghost node. (3x3 kernel)
+    // TODO: support more ghost nodes for bigger kernels. (Can-Inal)
     template <std::size_t Rows, std::size_t Columns>
     [[nodiscard]] discrete_system assemble(const nane::pde::finite_difference<Rows, Columns>& equation, const nane::geometry::grid<2>& grid,
                                            const nane::pde::boundaries<2>& boundary_conditions)
@@ -61,7 +63,8 @@ namespace nane::pde
             {
                 const auto row = index(i, j);
 
-                // Dirichlet boundary nodes have zero derivative.
+                // Dirichlet boundary values are applied to the initial state in solve().
+                // Zero derivative keeps them fixed during time integration.
                 if (is_dirichlet_boundary(i, j))
                     continue;
 
