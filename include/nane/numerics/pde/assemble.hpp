@@ -17,10 +17,9 @@ namespace nane::pde
         nane::vector<> rhs;
     };
 
-    // NOTE NANE: currently supports only 1 ghost node. (3x3 kernel)
-    // TODO: support more ghost nodes for bigger kernels. (Can-Inal)
+    // NOTE: Nane currently supports only 1 ghost node. (3x3 kernel)
     template <std::size_t Rows, std::size_t Columns>
-    [[nodiscard]] discrete_system assemble(const nane::pde::finite_difference<Rows, Columns>& equation, const nane::geometry::grid<2>& grid,
+    [[nodiscard]] discrete_system assemble(const nane::pde::finite_difference<Rows, Columns>& equation, const nane::grid<2>& grid,
                                            const nane::pde::boundaries<2>& boundary_conditions)
     {
         const auto& kernel = equation.kernel();
@@ -90,6 +89,9 @@ namespace nane::pde
                             entries.push_back({row, index(static_cast<std::size_t>(ti), static_cast<std::size_t>(tj)), coefficient});
                             continue;
                         }
+
+                        // TODO: support more ghost nodes for bigger kernels. (Can-Inal)
+                        // TODO: support corners. (Can-Inal)
 
                         // Neumann X-axis.
                         {

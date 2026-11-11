@@ -158,7 +158,7 @@ namespace nane::calculus
      * @return Approximation of the derivative at the grid points.
      */
     template <std::size_t Dimension>
-    [[nodiscard]] nane::vector<Dimension> differentiate(const nane::vector<Dimension>& values, const nane::geometry::grid<1>& grid,
+    [[nodiscard]] nane::vector<Dimension> differentiate(const nane::vector<Dimension>& values, const nane::grid<1>& grid,
                                                         const nane::calculus::stencil& stencil)
     {
         // values = [u0, u1, u2, ..., uN-1];
@@ -253,7 +253,7 @@ namespace nane::calculus
      * @return Approximation of the partial derivative at the grid points.
      */
     template <std::size_t Rows, std::size_t Columns>
-    [[nodiscard]] nane::matrix<Rows, Columns> differentiate(const nane::matrix<Rows, Columns>& values, const nane::geometry::grid<2>& grid,
+    [[nodiscard]] nane::matrix<Rows, Columns> differentiate(const nane::matrix<Rows, Columns>& values, const nane::grid<2>& grid,
                                                             const nane::calculus::stencil& stencil, std::size_t axis = 0)
     {
         NANE_REQUIRE(axis < 2, "matrix differentiation axis must be 0 or 1");

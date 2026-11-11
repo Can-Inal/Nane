@@ -35,7 +35,7 @@ namespace nane::calculus
      *
      * @return Approximation of the definite integral.
      */
-    [[nodiscard]] inline double integrate(auto&& function, const nane::calculus::quadrature_rule& rule, const nane::geometry::grid<1>& interval)
+    [[nodiscard]] inline double integrate(auto&& function, const nane::calculus::quadrature_rule& rule, const nane::grid<1>& interval)
     {
         const auto& nodes = rule.nodes();
         const auto& weights = rule.weights();

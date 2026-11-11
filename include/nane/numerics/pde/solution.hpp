@@ -20,7 +20,7 @@ namespace nane::pde
     template <std::size_t Dimension, typename State>
     struct solution
     {
-        nane::geometry::grid<Dimension> spatial_grid;
+        nane::grid<Dimension> spatial_grid;
         std::vector<double> time;
         std::vector<State> values;
     };

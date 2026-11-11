@@ -15,16 +15,15 @@
 namespace nane::pde
 {
     template <typename Equation, typename InitialState>
-    [[nodiscard]] auto solve(const nane::pde::ibvp<Equation, InitialState, 2>& problem, const nane::geometry::grid<2>& spatial_grid,
-                             const nane::ode::butcher_table& time_method, const nane::geometry::grid<1>& time_grid, double tolerance = 1e-6)
+    [[nodiscard]] auto solve(const nane::pde::ibvp<Equation, InitialState, 2>& problem, const nane::grid<2>& spatial_grid,
+                             const nane::ode::butcher_table& time_method, const nane::grid<1>& time_grid, double tolerance = 1e-6)
     {
         const auto equation = problem.equation()(spatial_grid);
         const auto system = nane::pde::assemble(equation, spatial_grid, problem.boundary_conditions());
 
         auto initial = problem.initial_state();
-        const auto initial_vector = initial.flatten_columns();
-
         nane::pde::apply_dirichlet(initial, problem.boundary_conditions());
+        const auto initial_vector = initial.flatten_columns();
 
         // clang-format off
         const auto system_function = [&](double, const nane::vector<>& state)

@@ -7,7 +7,7 @@
 
 #include <cstddef>
 
-namespace nane::geometry
+namespace nane
 {
     /**
      * @brief Samples a scalar function on a one-dimensional grid.
@@ -23,7 +23,7 @@ namespace nane::geometry
      *
      * @return Vector containing the sampled function values.
      */
-    [[nodiscard]] inline nane::vector<> sample(const nane::geometry::grid<1>& grid, auto&& function)
+    [[nodiscard]] inline nane::vector<> sample(const nane::grid<1>& grid, auto&& function)
     {
         NANE_REQUIRE(grid.has_count(0), "grid axis must have prescribed count");
 
@@ -54,7 +54,7 @@ namespace nane::geometry
      *
      * @return Matrix containing the sampled function values.
      */
-    [[nodiscard]] inline nane::matrix<> sample(const nane::geometry::grid<2>& grid, auto&& function)
+    [[nodiscard]] inline nane::matrix<> sample(const nane::grid<2>& grid, auto&& function)
     {
         NANE_REQUIRE((grid.has_count(0) && grid.has_count(1)), "both grid axes must have prescribed counts");
 
@@ -77,4 +77,4 @@ namespace nane::geometry
         return result;
     }
 
-} // namespace nane::geometry
+} // namespace nane

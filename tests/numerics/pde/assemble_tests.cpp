@@ -4,7 +4,7 @@
 
 TEST_CASE("Finite difference assembly with Dirichlet boundaries", "[pde][assemble]")
 {
-    const nane::geometry::grid<2> grid{
+    const nane::grid<2> grid{
         {0.0, 2.0, 3},
         {0.0, 2.0, 3},
     };
@@ -47,7 +47,7 @@ TEST_CASE("Finite difference assembly with Dirichlet boundaries", "[pde][assembl
 
 TEST_CASE("Finite difference assembly with homogeneous Neumann boundaries", "[pde][assemble]")
 {
-    const nane::geometry::grid<2> grid{
+    const nane::grid<2> grid{
         {0.0, 2.0, 3},
         {0.0, 2.0, 3},
     };
@@ -102,7 +102,7 @@ TEST_CASE("Finite difference assembly with homogeneous Neumann boundaries", "[pd
 
 TEST_CASE("Finite difference assembly adds Neumann values to right-hand side", "[pde][assemble]")
 {
-    const nane::geometry::grid<2> grid{
+    const nane::grid<2> grid{
         {0.0, 2.0, 3},
         {0.0, 2.0, 3},
     };

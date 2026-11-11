@@ -30,8 +30,7 @@ namespace nane::ode
      * @return Numerical solution of the initial value problem.
      */
     template <typename Problem>
-    [[nodiscard]] auto solve(Problem&& problem, const nane::ode::butcher_table& method, const nane::geometry::grid<1>& time_grid,
-                             double tolerance = 1e-6)
+    [[nodiscard]] auto solve(Problem&& problem, const nane::ode::butcher_table& method, const nane::grid<1>& time_grid, double tolerance = 1e-6)
     {
         return nane::ode::runge_kutta(std::forward<Problem>(problem), method, time_grid, tolerance);
     }

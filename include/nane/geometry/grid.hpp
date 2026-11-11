@@ -8,7 +8,7 @@
 #include <initializer_list>
 #include <optional>
 
-namespace nane::geometry
+namespace nane
 {
     /**
      * @ingroup geometry
@@ -158,4 +158,4 @@ namespace nane::geometry
         std::array<nane::vector<>, Dimensions> m_Coordinates;
     };
 
-} // namespace nane::geometry
+} // namespace nane

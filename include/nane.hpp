@@ -12,6 +12,9 @@
 #include "nane/math/matrix.hpp"
 #include "nane/math/vector.hpp"
 
+// numerics/approximation
+#include "nane/numerics/approximation/linear.hpp"
+
 // numerics/calculus
 #include "nane/numerics/calculus/differentiation/differentiate.hpp"
 #include "nane/numerics/calculus/differentiation/stencil.hpp"

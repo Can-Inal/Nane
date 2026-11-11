@@ -61,10 +61,10 @@ TEST_CASE("Derivative of sampled one-dimensional data", "[calculus][differentiat
 {
     constexpr std::size_t N = 5;
 
-    const nane::geometry::grid<1> grid{{0.0, 1.0, N}};
+    const nane::grid<1> grid{{0.0, 1.0, N}};
 
     // u(x) = x^2
-    const auto values = nane::geometry::sample(grid, [](double x) { return x * x; });
+    const auto values = nane::sample(grid, [](double x) { return x * x; });
 
     // u_xx = 2
     const auto result = nane::calculus::differentiate(values, grid, nane::calculus::stencils::central_second(1.0));
@@ -82,13 +82,13 @@ TEST_CASE("Partial derivative of sampled two-dimensional data along axis 0", "[c
     constexpr std::size_t Nx = 5;
     constexpr std::size_t Ny = 4;
 
-    const nane::geometry::grid<2> grid{
+    const nane::grid<2> grid{
         {0.0, 1.0, Nx},
         {0.0, 1.0, Ny},
     };
 
     // u(x, y) = x^2 + 3y^2
-    const auto values = nane::geometry::sample(grid, [](double x, double y) { return x * x + 3.0 * y * y; });
+    const auto values = nane::sample(grid, [](double x, double y) { return x * x + 3.0 * y * y; });
 
     // u_xx = 2
     const auto result = nane::calculus::differentiate(values, grid, nane::calculus::stencils::central_second(1.0), 0);
@@ -111,13 +111,13 @@ TEST_CASE("Partial derivative of sampled two-dimensional data along axis 1", "[c
     constexpr std::size_t Nx = 5;
     constexpr std::size_t Ny = 4;
 
-    const nane::geometry::grid<2> grid{
+    const nane::grid<2> grid{
         {0.0, 1.0, Nx},
         {0.0, 1.0, Ny},
     };
 
     // u(x, y) = x^2 + 3y^2
-    const auto values = nane::geometry::sample(grid, [](double x, double y) { return x * x + 3.0 * y * y; });
+    const auto values = nane::sample(grid, [](double x, double y) { return x * x + 3.0 * y * y; });
 
     // u_yy = 6
     const auto result = nane::calculus::differentiate(values, grid, nane::calculus::stencils::central_second(1.0), 1);
@@ -140,13 +140,13 @@ TEST_CASE("Mixed derivative of sampled two-dimensional data", "[calculus][differ
     constexpr std::size_t Nx = 5;
     constexpr std::size_t Ny = 5;
 
-    const nane::geometry::grid<2> grid{
+    const nane::grid<2> grid{
         {0.0, 1.0, Nx},
         {0.0, 1.0, Ny},
     };
 
     // u(x, y) = xy
-    const auto values = nane::geometry::sample(grid, [](double x, double y) { return x * y; });
+    const auto values = nane::sample(grid, [](double x, double y) { return x * y; });
 
     // u_xy = 1
     const auto u_x = nane::calculus::differentiate(values, grid, nane::calculus::stencils::central_first(1.0), 0);
