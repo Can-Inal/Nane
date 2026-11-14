@@ -1,3 +1,4 @@
+
 #pragma once
 
 #include "nane/error.hpp"
@@ -11,23 +12,6 @@
 
 namespace nane
 {
-    namespace detail
-    {
-        inline std::mt19937& random_engine()
-        {
-            static thread_local std::mt19937 engine{std::random_device{}()};
-            return engine;
-        }
-
-        inline std::uniform_real_distribution<double> uniform_distribution(std::pair<double, double> range)
-        {
-            const auto [lower, upper] = range;
-            NANE_REQUIRE(lower < upper && std::isfinite(upper - lower), "random range must have positive finite width");
-
-            return std::uniform_real_distribution<double>(lower, upper);
-        }
-    } // namespace detail
-
     /**
      * @brief Generates a fixed-size vector of uniformly distributed values.
      *
@@ -40,8 +24,11 @@ namespace nane
         requires(Dimension != dynamic)
     [[nodiscard]] vector<Dimension> random(std::pair<double, double> range)
     {
-        auto distribution = detail::uniform_distribution(range);
-        auto& engine = detail::random_engine();
+        const auto [lower, upper] = range;
+        NANE_REQUIRE(lower < upper && std::isfinite(upper - lower), "random range must have positive finite width");
+
+        static thread_local std::mt19937 engine{std::random_device{}()};
+        std::uniform_real_distribution<double> distribution(lower, upper);
 
         vector<Dimension> result;
         for (auto& value : result)
@@ -65,8 +52,11 @@ namespace nane
         requires(Rows != dynamic && Columns != dynamic)
     [[nodiscard]] matrix<Rows, Columns> random(std::pair<double, double> range)
     {
-        auto distribution = detail::uniform_distribution(range);
-        auto& engine = detail::random_engine();
+        const auto [lower, upper] = range;
+        NANE_REQUIRE(lower < upper && std::isfinite(upper - lower), "random range must have positive finite width");
+
+        static thread_local std::mt19937 engine{std::random_device{}()};
+        std::uniform_real_distribution<double> distribution(lower, upper);
 
         matrix<Rows, Columns> result;
         for (std::size_t row = 0; row < Rows; ++row)

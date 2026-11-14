@@ -10,6 +10,8 @@
 
 // Math
 #include "nane/math/matrix.hpp"
+#include "nane/math/random.hpp"
+#include "nane/math/sparse_matrix.hpp"
 #include "nane/math/vector.hpp"
 
 // numerics/approximation
