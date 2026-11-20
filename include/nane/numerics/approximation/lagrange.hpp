@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "nane/error.hpp"
@@ -76,11 +75,11 @@ namespace nane::approximation
      * @brief Evaluates a local Lagrange interpolant on a two-dimensional grid.
      *
      * Applies the one-dimensional Lagrange interpolant along the x-axis for
-     * each row, then interpolates those results along the y-axis. A query
+     * each column, then interpolates those results along the y-axis. A query
      * outside either axis uses one-dimensional extrapolation along that axis.
      *
      * @tparam Points Number of interpolation points per axis. Must be at least two.
-     * @param values Sample matrix. The entry at row j and column i corresponds
+     * @param values Sample matrix. The entry at row i and column j corresponds
      *               to the grid point (x[i], y[j]).
      * @param position Query coordinates in (x, y) order.
      * @param grid Sampling grid with a prescribed point count on each axis.
@@ -101,31 +100,31 @@ namespace nane::approximation
 
         NANE_REQUIRE(x_axis.size() >= Points, "x axis has too few points for Lagrange interpolation");
         NANE_REQUIRE(y_axis.size() >= Points, "y axis has too few points for Lagrange interpolation");
-        NANE_REQUIRE(values.columns() == x_axis.size(), "number of columns must match x axis points");
-        NANE_REQUIRE(values.rows() == y_axis.size(), "number of rows must match y axis points");
+        NANE_REQUIRE(values.rows() == x_axis.size(), "number of rows must match x axis points");
+        NANE_REQUIRE(values.columns() == y_axis.size(), "number of columns must match y axis points");
 
         // Recreate each axis as a grid for the 1D overload.
         const nane::grid<1> x_grid(grid.start(0), grid.stop(0), x_axis.size());
         const nane::grid<1> y_grid(grid.start(1), grid.stop(1), y_axis.size());
 
-        nane::vector<> row_values(x_axis.size());
+        nane::vector<> column_values(x_axis.size());
         nane::vector<> intermediate(y_axis.size());
 
-        const auto interpolate_row = [&](std::size_t row)
+        const auto interpolate_column = [&](std::size_t column)
         {
-            // Reuse the same buffer to pass each row to the 1D overload.
-            for (std::size_t column = 0; column < x_axis.size(); ++column)
+            // Extract the X samples at this Y coordinate for the 1D overload.
+            for (std::size_t row = 0; row < x_axis.size(); ++row)
             {
-                row_values[column] = values(row, column);
+                column_values[row] = values(row, column);
             }
 
-            return lagrange<Points>(row_values, position[0], x_grid);
+            return lagrange<Points>(column_values, position[0], x_grid);
         };
 
         // Entry j is the interpolated value at (position[0], y_axis[j]).
-        for (std::size_t row = 0; row < y_axis.size(); ++row)
+        for (std::size_t column = 0; column < y_axis.size(); ++column)
         {
-            intermediate[row] = interpolate_row(row);
+            intermediate[column] = interpolate_column(column);
         }
 
         // The second pass selects Points of these values along the y-axis.

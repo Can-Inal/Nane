@@ -15,7 +15,9 @@
 #include "nane/math/vector.hpp"
 
 // numerics/approximation
+#include "nane/numerics/approximation/lagrange.hpp"
 #include "nane/numerics/approximation/linear.hpp"
+#include "nane/numerics/approximation/spline.hpp"
 
 // numerics/calculus
 #include "nane/numerics/calculus/differentiation/differentiate.hpp"

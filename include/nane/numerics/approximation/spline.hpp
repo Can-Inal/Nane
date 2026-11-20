@@ -93,12 +93,12 @@ namespace nane::approximation
     /**
      * @brief Evaluates a natural cubic spline on a uniform two-dimensional grid.
      *
-     * Interpolates each row along the x-axis, then interpolates the resulting
+     * Interpolates each column along the x-axis, then interpolates the resulting
      * values along the y-axis. Each pass applies natural endpoint conditions.
      * Outside either axis, that pass extrapolates using its first or last
      * cubic segment.
      *
-     * @param values Sample matrix. The entry at row j and column i corresponds
+     * @param values Sample matrix. The entry at row i and column j corresponds
      *               to the grid point (x[i], y[j]).
      * @param position Query coordinates in (x, y) order.
      * @param grid Uniform grid with a prescribed count of at least two points
@@ -118,31 +118,31 @@ namespace nane::approximation
 
         NANE_REQUIRE(x_axis.size() >= 2, "x axis must have at least 2 points");
         NANE_REQUIRE(y_axis.size() >= 2, "y axis must have at least 2 points");
-        NANE_REQUIRE(values.columns() == x_axis.size(), "number of columns must match x axis points");
-        NANE_REQUIRE(values.rows() == y_axis.size(), "number of rows must match y axis points");
+        NANE_REQUIRE(values.rows() == x_axis.size(), "number of rows must match x axis points");
+        NANE_REQUIRE(values.columns() == y_axis.size(), "number of columns must match y axis points");
 
         // Give the 1D overload a grid for each axis.
         const nane::grid<1> x_grid(grid.start(0), grid.stop(0), x_axis.size());
         const nane::grid<1> y_grid(grid.start(1), grid.stop(1), y_axis.size());
 
-        nane::vector<> row_values(x_axis.size());
+        nane::vector<> column_values(x_axis.size());
         nane::vector<> intermediate(y_axis.size());
 
-        const auto interpolate_row = [&](std::size_t row)
+        const auto interpolate_column = [&](std::size_t column)
         {
-            // Reuse the same buffer to pass each row to the 1D overload.
-            for (std::size_t column = 0; column < x_axis.size(); ++column)
+            // Extract the X samples at this Y coordinate for the 1D overload.
+            for (std::size_t row = 0; row < x_axis.size(); ++row)
             {
-                row_values[column] = values(row, column);
+                column_values[row] = values(row, column);
             }
 
-            return spline(row_values, position[0], x_grid);
+            return spline(column_values, position[0], x_grid);
         };
 
         // Entry j is the spline value at (position[0], y_axis[j]).
-        for (std::size_t row = 0; row < y_axis.size(); ++row)
+        for (std::size_t column = 0; column < y_axis.size(); ++column)
         {
-            intermediate[row] = interpolate_row(row);
+            intermediate[column] = interpolate_column(column);
         }
 
         // Evaluate the intermediate values along y at the requested coordinate.

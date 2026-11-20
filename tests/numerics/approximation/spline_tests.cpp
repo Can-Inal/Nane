@@ -1,7 +1,9 @@
+#include "nane/geometry/sample.hpp"
 #include "nane/numerics/approximation/spline.hpp"
 
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
+#include <stdexcept>
 
 TEST_CASE("Natural cubic spline matches a known four-point result", "[approximation][spline][interpolation]")
 {
@@ -30,19 +32,38 @@ TEST_CASE("Natural cubic spline reduces to linear interpolation with two points"
 TEST_CASE("Two-dimensional natural cubic spline on a rectangular grid", "[approximation][spline][2d]")
 {
     const nane::grid<2> grid{{0.0, 3.0, 4}, {0.0, 2.0, 3}};
-    const nane::vector<> u{0.0, 1.0, 1.0, 0.0};
-    const nane::vector<> v{0.0, 1.0, 0.0};
-    nane::matrix<> values(3, 4); // row = Y, column = X (current approximation overload convention)
 
-    for (std::size_t j = 0; j < values.rows(); ++j)
+    // At the grid nodes, u(x) = {0, 1, 1, 0} and v(y) = {0, 1, 0}.
+    // Sampling a separable function makes the expected 2D result easy to verify.
+    const auto values = nane::sample(grid, [](double x, double y) { return 0.5 * x * (3.0 - x) * y * (2.0 - y); });
+
+    SECTION("Interpolation between nodes")
     {
-        for (std::size_t i = 0; i < values.columns(); ++i)
-        {
-            values(j, i) = u[i] * v[j];
-        }
+        // The 1D natural spline factors are 1.15 along X and 0.6875 along Y.
+        REQUIRE(nane::approximation::spline(values, nane::vector<2>{1.5, 0.5}, grid) == Catch::Approx(0.790625).margin(1e-12));
     }
 
-    REQUIRE(nane::approximation::spline(values, nane::vector<2>{1.5, 0.5}, grid) == Catch::Approx(0.790625).margin(1e-12));
+    SECTION("Values are reproduced at grid points")
+    {
+        REQUIRE(nane::approximation::spline(values, nane::vector<2>{1.0, 1.0}, grid) == Catch::Approx(1.0).margin(1e-12));
+        REQUIRE(nane::approximation::spline(values, nane::vector<2>{3.0, 2.0}, grid) == Catch::Approx(0.0).margin(1e-12));
+    }
+}
+
+TEST_CASE("Two-dimensional spline preserves an affine function when extrapolating", "[approximation][spline][2d][extrapolation]")
+{
+    const nane::grid<2> grid{{0.0, 2.0, 3}, {0.0, 3.0, 4}};
+    const auto values = nane::sample(grid, [](double x, double y) { return 1.0 + 2.0 * x - 3.0 * y; });
+
+    REQUIRE(nane::approximation::spline(values, nane::vector<2>{-1.0, 4.0}, grid) == Catch::Approx(-13.0).margin(1e-12));
+}
+
+TEST_CASE("Two-dimensional spline rejects mismatched matrix dimensions", "[approximation][spline][2d][validation]")
+{
+    const nane::grid<2> grid{{0.0, 3.0, 4}, {0.0, 2.0, 3}};
+    const nane::matrix<> values(3, 4); // Transposed dimensions: expected 4 rows and 3 columns.
+
+    REQUIRE_THROWS_AS(nane::approximation::spline(values, nane::vector<2>{1.5, 0.5}, grid), std::invalid_argument);
 }
 
 TEST_CASE("Spline rejects a mismatched number of values", "[approximation][spline][validation]")
