@@ -86,6 +86,28 @@ namespace nane
         }
 
         /**
+         * @brief Constructs a tridiagonal matrix from initializer list.
+         */
+        [[nodiscard]] static matrix tridiagonal(std::size_t dimension, const std::array<double, 3>& values)
+        {
+            matrix result(dimension, dimension);
+            const auto [lower, diagonal, upper] = values;
+
+            for (std::size_t i = 0; i < dimension; ++i)
+            {
+                if (i > 0)
+                    result(i, i - 1) = lower;
+
+                result(i, i) = diagonal;
+
+                if (i + 1 < dimension)
+                    result(i, i + 1) = upper;
+            }
+
+            return result;
+        }
+
+        /**
          * @brief Returns the number of rows.
          */
         [[nodiscard]] constexpr std::size_t rows() const noexcept

@@ -4,6 +4,7 @@
 #include "nane/math/vector.hpp"
 
 #include <Eigen/Sparse>
+#include <array>
 #include <cstddef>
 #include <vector>
 
@@ -48,6 +49,43 @@ namespace nane
         sparse_matrix(std::size_t rows, std::size_t columns)
         {
             set_shape(rows, columns);
+        }
+
+        /**
+         * @brief Constructs a tridiagonal sparse matrix.
+         *
+         * @param dimension Number of rows and columns.
+         * @param values Lower, main, and upper diagonal values, respectively.
+         * @return The constructed sparse matrix.
+         */
+        [[nodiscard]] static sparse_matrix tridiagonal(std::size_t dimension, const std::array<double, 3>& values)
+        {
+            sparse_matrix result(dimension, dimension);
+            const auto [lower, diagonal, upper] = values;
+
+            std::vector<entry> entries;
+            entries.reserve(dimension == 0 ? 0 : 3 * dimension - 2);
+
+            for (std::size_t i = 0; i < dimension; ++i)
+            {
+                if (i > 0 && lower != 0.0)
+                {
+                    entries.push_back({i, i - 1, lower});
+                }
+
+                if (diagonal != 0.0)
+                {
+                    entries.push_back({i, i, diagonal});
+                }
+
+                if (i + 1 < dimension && upper != 0.0)
+                {
+                    entries.push_back({i, i + 1, upper});
+                }
+            }
+
+            result.set_entries(entries);
+            return result;
         }
 
         /**
